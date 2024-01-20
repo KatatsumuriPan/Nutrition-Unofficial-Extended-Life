@@ -1,16 +1,16 @@
 [
-{
-  "modid": "nutrition",
-  "name": "Nutrition",
-  "description": "Nutrition is a highly configurable mod to enable the creation of health systems in Minecraft.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "https://github.com/WesCook/Nutrition",
-  "updateUrl": "",
-  "authorList": ["Wes Cook"],
-  "credits": "Inspiration from TerraFirmaCraft and Spice of Life.  Code contributions from Josh Davison and KnightMiner.  Thanks to others who have contributed mod support or localizations.",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+  {
+    "modid": "nutrition",
+    "name": "Nutrition Unofficial Extended Life",
+    "description": "Nutrition is a highly configurable mod to enable the creation of health systems in Minecraft.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life",
+    "updateUrl": "",
+    "authorList": ["Katatsumuri.pan"],
+    "credits": "Original mod Nutrition and author Wes Cook.  Inspiration from TerraFirmaCraft and Spice of Life.  Code contributions from Josh Davison and KnightMiner.  Thanks to others who have contributed mod support or localizations.",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
 ]
