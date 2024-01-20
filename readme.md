@@ -1,6 +1,6 @@
-# Nutrition Unoffical Extended life
+# Nutrition Unofficial Extended life
 
-This is an unoffical fork of [Nutrition](https://github.com/WesCook/Nutrition).
+This is an unofficial fork of [Nutrition](https://github.com/WesCook/Nutrition).
 
 # Nutrition
 
