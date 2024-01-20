@@ -6,15 +6,19 @@ Nutrition is a highly configurable mod to enable the creation of health systems 
 
 ![Nutrition GUI](screenshots/gui.png "Nutrition GUI")
 
-Through its [config files](https://github.com/WesCook/Nutrition/wiki/Configuration), Nutrition allows you to define custom food groups (called [nutrients](https://github.com/WesCook/Nutrition/wiki/Nutrients)) which apply [effects](https://github.com/WesCook/Nutrition/wiki/Effects) based on nutrition levels.
+Through its [config files](https://github.com/WesCook/Nutrition/wiki/Configuration), Nutrition allows you to define
+custom food groups (called [nutrients](https://github.com/WesCook/Nutrition/wiki/Nutrients)) which
+apply [effects](https://github.com/WesCook/Nutrition/wiki/Effects) based on nutrition levels.
 
-By default, Nutrition comes configured with the classic five food group system: dairy, fruit, grain, protein, and vegetables.  However many different systems are possible.  Some examples include:
+By default, Nutrition comes configured with the classic five food group system: dairy, fruit, grain, protein, and
+vegetables. However many different systems are possible. Some examples include:
 
 * A spicy tolerance bar, where eating enough spicy foods will grant a permanent resistance to fire.
 * A zombie simulation where you must eat brains to avoid negative effects.
-* Gluten intolerance.  Eat bread, get sick.
+* Gluten intolerance. Eat bread, get sick.
 
-When updating the mod, please delete your `/config/nutrition/nutrients/` directory to receive new mod support.  This is necessary so we don't overwrite any customizations.
+When updating the mod, please delete your `/config/nutrition/nutrients/` directory to receive new mod support. This is
+necessary so we don't overwrite any customizations.
 
 ## Mods Supported
 
@@ -107,7 +111,8 @@ Mods that are supported with the default five-food group system include:
 * [XL Food Mod](https://www.curseforge.com/minecraft/mc-mods/xl-food-mod)
 * [Zoo & Wild Animals Rebuilt](https://www.curseforge.com/minecraft/mc-mods/zoo-wild-animals-rebuild)
 
-Mod support contributions are welcome!  Please create a [Pull Request](https://github.com/WesCook/Nutrition/pulls) or an [Issue](https://github.com/WesCook/Nutrition/issues) with the relevant .json files.
+Mod support contributions are welcome!  Please create a [Pull Request](https://github.com/WesCook/Nutrition/pulls) or
+an [Issue](https://github.com/WesCook/Nutrition/issues) with the relevant .json files.
 
 ## Credits:
 
