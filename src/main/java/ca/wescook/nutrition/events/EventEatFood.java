@@ -16,6 +16,7 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import ca.wescook.nutrition.api.INutritionFood;
 import ca.wescook.nutrition.capabilities.INutrientManager;
 import ca.wescook.nutrition.effects.EffectsManager;
 import ca.wescook.nutrition.nutrients.Nutrient;
@@ -46,7 +47,7 @@ public class EventEatFood {
         if (player.canEat(false) || Config.allowOverEating) {
             // Calculate nutrition
             Item item = Item.getByNameOrId(blockState.getBlock().getRegistryName().toString()); // Get cake Item from
-                                                                                                // registry name
+            // registry name
             ItemStack itemStack = new ItemStack(item);
             List<Nutrient> foundNutrients = NutrientUtils.getFoodNutrients(itemStack);
             float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients);
@@ -83,12 +84,15 @@ public class EventEatFood {
 
         // Is item food?
         Item item = itemStack.getItem();
-        if (!(item instanceof ItemFood))
-            return;
-
-        // If config allows, mark food as edible
-        if (Config.allowOverEating)
-            ((ItemFood) item).setAlwaysEdible();
+        if (item instanceof ItemFood) {
+            // If config allows, mark food as edible
+            if (Config.allowOverEating)
+                ((ItemFood) item).setAlwaysEdible();
+        }
+        if (item instanceof INutritionFood iNutritionFood) {
+            if (Config.allowOverEating)
+                iNutritionFood.setAlwaysEdible();
+        }
     }
 
     // Calculate nutrition after finishing eating and reapply effects if appropriate
@@ -114,19 +118,19 @@ public class EventEatFood {
     // Add found nutrients to player
     private void applyNutrition(EntityPlayer player, ItemStack itemStack) {
         // Get out if not food item
-        if (!(itemStack.getItem() instanceof ItemFood || itemStack.getItem() instanceof ItemBucketMilk))
-            return;
+        if (itemStack.getItem() instanceof ItemFood || itemStack.getItem() instanceof ItemBucketMilk ||
+                itemStack.getItem() instanceof INutritionFood) {// Calculate nutrition
+            List<Nutrient> foundNutrients = NutrientUtils.getFoodNutrients(itemStack); // Nutrient list for that food
+            float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients); // Nutrition value for
+                                                                                                // that
+            // food
 
-        // Calculate nutrition
-        List<Nutrient> foundNutrients = NutrientUtils.getFoodNutrients(itemStack); // Nutrient list for that food
-        float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients); // Nutrition value for that
-                                                                                            // food
-
-        // Add to each nutrient
-        if (!player.getEntityWorld().isRemote) // Server
-            player.getCapability(NUTRITION_CAPABILITY, null).add(foundNutrients, nutritionValue);
-        else // Client
-            ClientProxy.localNutrition.add(foundNutrients, nutritionValue);
+            // Add to each nutrient
+            if (!player.getEntityWorld().isRemote) // Server
+                player.getCapability(NUTRITION_CAPABILITY, null).add(foundNutrients, nutritionValue);
+            else // Client
+                ClientProxy.localNutrition.add(foundNutrients, nutritionValue);
+        }
     }
 
     // If milk clears effects, reapply immediately

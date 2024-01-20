@@ -4,9 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.BlockCake;
-import net.minecraft.item.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemBlockSpecial;
+import net.minecraft.item.ItemBucketMilk;
+import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
+import ca.wescook.nutrition.api.INutritionFood;
 import ca.wescook.nutrition.utility.Config;
 import ca.wescook.nutrition.utility.Log;
 
@@ -30,7 +36,7 @@ public class NutrientUtils {
             // Search ore dictionary
             for (String listedOreDict : nutrient.foodOreDict) { // All ore dicts in that nutrient
                 for (ItemStack itemStack : OreDictionary.getOres(listedOreDict)) { // All items that match that oredict
-                                                                                   // (eg. listAllmilk)
+                    // (eg. listAllmilk)
                     if (itemStack.isItemEqual(eatingFood)) { // Our food matches oredict
                         nutrientsFound.add(nutrient); // Add nutrient
                         continue foodSearch; // Skip rest of search in this nutrient, try others
@@ -56,14 +62,16 @@ public class NutrientUtils {
             foodValue = 2; // Hardcoded value from vanilla
         else if (item instanceof ItemBucketMilk)
             foodValue = 4; // Hardcoded milk value
+        else if (item instanceof INutritionFood)
+            foodValue = ((INutritionFood) item).getHealAmount(itemStack); // Number of half-drumsticks food heals
 
         // Apply multipliers
         float adjustedFoodValue = (float) (foodValue * 0.5); // Halve to start at reasonable starting point
         adjustedFoodValue = adjustedFoodValue * Config.nutritionMultiplier; // Multiply by config value
         float lossPercentage = (float) Config.lossPerNutrient / 100; // Loss percentage from config file
         float foodLoss = (adjustedFoodValue * lossPercentage * (nutrients.size() - 1)); // Lose 15% (configurable) for
-                                                                                        // each nutrient added after the
-                                                                                        // first nutrient
+        // each nutrient added after the
+        // first nutrient
         float nutritionValue = Math.max(0, adjustedFoodValue - foodLoss); // Subtract from true value, with a floor of 0
 
         return nutritionValue;
@@ -88,6 +96,10 @@ public class NutrientUtils {
 
         // Milk Bucket
         if (item instanceof ItemBucketMilk)
+            return true;
+
+        // INutritionFood
+        if (item instanceof INutritionFood)
             return true;
 
         return false;

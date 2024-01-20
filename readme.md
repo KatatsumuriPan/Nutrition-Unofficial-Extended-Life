@@ -1,3 +1,7 @@
+# Nutrition Unoffical Extended life
+
+This is an unoffical fork of [Nutrition](https://github.com/WesCook/Nutrition).
+
 # Nutrition
 
 Nutrition is a highly configurable mod to enable the creation of health systems in Minecraft.
