@@ -108,3 +108,7 @@ Mods that are supported with the default five-food group system include:
 * [Zoo & Wild Animals Rebuilt](https://www.curseforge.com/minecraft/mc-mods/zoo-wild-animals-rebuild)
 
 Mod support contributions are welcome!  Please create a [Pull Request](https://github.com/WesCook/Nutrition/pulls) or an [Issue](https://github.com/WesCook/Nutrition/issues) with the relevant .json files.
+
+## Credits:
+
+- [GTCEu Buildscripts](https://github.com/GregTechCEu/Buildscripts) for the amazing buildscripts
