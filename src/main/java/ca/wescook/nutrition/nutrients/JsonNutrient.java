@@ -32,8 +32,12 @@ public class JsonNutrient {
         public static class ItemId {
 
             public String id;
-            public int meta;
+            public Integer meta;
             public double scale = 1;
+
+            public int getMeta() {
+                return meta == null ? 0 : meta;
+            }
 
             public static class Adapter extends TypeAdapter<ItemId> {
 
@@ -90,14 +94,14 @@ public class JsonNutrient {
                         return;
                     }
                     if (value.scale == 1) {
-                        if (value.meta == 0)
+                        if (value.meta == null)
                             writer.value(value.id);
                         else
                             writer.value(value.id + ":" + value.meta);
                     } else {
                         writer.beginObject();
                         writer.name("id").value(value.id);
-                        if (value.meta != 0)
+                        if (value.meta != null)
                             writer.name("meta").value(value.meta);
                         if (value.scale != 1)
                             writer.name("scale").value(value.scale);

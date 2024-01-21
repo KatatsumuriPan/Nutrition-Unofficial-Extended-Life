@@ -65,7 +65,7 @@ public class DataParser {
             if (nutrientRaw.food.items != null) {
                 for (ItemId idScale : nutrientRaw.food.items) {
                     String name = idScale.id;
-                    int metadata = idScale.meta;
+                    int metadata = idScale.getMeta();
                     Item item = Item.getByNameOrId(name);
 
                     if (item == null) {

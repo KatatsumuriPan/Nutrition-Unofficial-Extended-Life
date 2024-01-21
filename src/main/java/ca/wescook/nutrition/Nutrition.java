@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import ca.wescook.nutrition.capabilities.CapabilityManager;
+import ca.wescook.nutrition.command.CommandEditNutrition;
 import ca.wescook.nutrition.events.EventEatFood;
 import ca.wescook.nutrition.events.EventPlayerDeath;
 import ca.wescook.nutrition.events.EventPlayerJoinWorld;
@@ -78,5 +79,6 @@ public class Nutrition {
     @Mod.EventHandler
     public void serverStart(FMLServerStartingEvent event) {
         event.registerServerCommand(new ChatCommand());
+        event.registerServerCommand(new CommandEditNutrition());
     }
 }
