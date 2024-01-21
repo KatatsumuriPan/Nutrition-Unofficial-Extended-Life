@@ -23,9 +23,11 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 import ca.wescook.nutrition.Tags;
@@ -49,7 +51,7 @@ public class CommandEditNutrition extends CommandBase {
 
     @Override
     public String getUsage(ICommandSender sender) {
-        return getName() + " [add|remove <nutrient>]";
+        return getName() + " [add|remove <nutrient> [...]]";
     }
 
     @Override
@@ -74,22 +76,36 @@ public class CommandEditNutrition extends CommandBase {
             }
             switch (args.length) {
                 case 0 -> sender.sendMessage(new TextComponentString(createInfo(heldItem, player)));
-                case 2 -> {
+                case 2, 3 -> {
                     String type = args[0];
-                    Nutrient nutrient = NutrientList.getByName(args[1]);
-                    if (nutrient == null)
-                        throw new CommandException("Unknown nutrient:" + args[1]);
                     switch (type) {
                         case "add" -> {
-                            if (nutrient.foodItems.stream().anyMatch(s -> s.itemStack.isItemEqual(heldItem)))
-                                throw new CommandException(
-                                        args[1] + " is already added to " + heldItem.getItem().getRegistryName() + "!");
-                            nutrient.foodItems.add(new ScaledItemStack(heldItem, 1));
-                            DataUpdater.add(nutrient, new ScaledItemStack(heldItem, 1));
-                            sender.sendMessage(new TextComponentString(
-                                    args[1] + " is added to " + heldItem.getItem().getRegistryName()));
+                            Nutrient nutrient = getNutrient(args);
+                            if (args.length == 2) {
+                                if (nutrient.foodItems.stream().anyMatch(s -> s.itemStack.isItemEqual(heldItem)))
+                                    throw new CommandException(
+                                            args[1] + " is already added to " + heldItem.getItem().getRegistryName() +
+                                                    "!");
+                                nutrient.foodItems.add(new ScaledItemStack(heldItem, 1));
+                                DataUpdater.add(nutrient, new ScaledItemStack(heldItem, 1));
+                                sender.sendMessage(new TextComponentString(
+                                        args[1] + " is added to " + heldItem.getItem().getRegistryName()));
+                            } else {
+                                float scale = (float) parseDouble(args[2], 0);
+                                int index = Iterables.indexOf(nutrient.foodItems,
+                                        s -> s.itemStack.isItemEqual(heldItem));
+                                ScaledItemStack scaledItemStack = new ScaledItemStack(heldItem, scale);
+                                if (index >= 0) {
+                                    nutrient.foodItems.set(index, scaledItemStack);
+                                    DataUpdater.edit(nutrient, scaledItemStack);
+                                } else {
+                                    nutrient.foodItems.add(scaledItemStack);
+                                    DataUpdater.add(nutrient, scaledItemStack);
+                                }
+                            }
                         }
                         case "remove" -> {
+                            Nutrient nutrient = getNutrient(args);
                             Optional<ScaledItemStack> first = nutrient.foodItems.stream()
                                     .filter(s -> s.itemStack.isItemEqual(heldItem)).findFirst();
                             if (!first.isPresent())
@@ -105,6 +121,20 @@ public class CommandEditNutrition extends CommandBase {
                 default -> throw new WrongUsageException(getUsage(sender));
             }
         }
+    }
+
+    @NotNull
+    private static Nutrient getNutrient(String[] args) throws CommandException {
+        if (args[1].isEmpty()) {
+            switch (args[0]) {
+                case "add" -> throw new WrongUsageException("add <nutrient> [<scale>]");
+                case "remove" -> throw new WrongUsageException("remove <nutrient>");
+            }
+        }
+        Nutrient nutrient = NutrientList.getByName(args[1]);
+        if (nutrient == null)
+            throw new CommandException("Unknown nutrient:" + args[1]);
+        return nutrient;
     }
 
     private static String createInfo(ItemStack itemStack, EntityPlayer player) {

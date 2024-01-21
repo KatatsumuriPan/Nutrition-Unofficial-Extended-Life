@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 
@@ -40,6 +41,29 @@ public class DataUpdater {
                 itemId.scale = scaledItemStack.scale;
                 jsonNutrient.food.items.add(itemId);
                 Collections.sort(jsonNutrient.food.items, (a, b) -> CompareUtil.compareTo(a.id, b.id));
+            }
+            String json = toJson(jsonNutrient);
+            FileUtils.writeByteArrayToFile(nutrientFile, json.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void edit(Nutrient nutrient, ScaledItemStack scaledItemStack) {
+        File nutrientFile = new File(new File(Config.configDirectory, Tags.MODID + "/nutrients"),
+                nutrient.name + ".json");
+        try {
+            JsonReader jsonReader = new JsonReader(new FileReader(nutrientFile)); // Read in JSON
+            JsonNutrient jsonNutrient = gson.fromJson(jsonReader, JsonNutrient.class);
+            {
+                Optional<ItemId> first = jsonNutrient.food.items.stream().filter(itemId -> {
+                    return itemId.id.equals(scaledItemStack.itemStack.getItem().getRegistryName().toString()) &&
+                            itemId.getMeta() == scaledItemStack.itemStack.getMetadata();
+                }).findFirst();
+                if (first.isPresent()) {
+                    ItemId itemId = first.get();
+                    itemId.scale = scaledItemStack.scale;
+                }
             }
             String json = toJson(jsonNutrient);
             FileUtils.writeByteArrayToFile(nutrientFile, json.getBytes(StandardCharsets.UTF_8));
