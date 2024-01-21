@@ -2,6 +2,10 @@
 
 This is an unofficial fork of [Nutrition](https://github.com/WesCook/Nutrition).
 
+# Credit
+
+This mod is created using [GregTechCEu's Buildscripts](https://github.com/GregTechCEu/Buildscripts)
+
 # Nutrition
 
 Nutrition is a highly configurable mod to enable the creation of health systems in Minecraft.
