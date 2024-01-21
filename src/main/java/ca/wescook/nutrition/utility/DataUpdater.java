@@ -39,7 +39,7 @@ public class DataUpdater {
                 itemId.meta = scaledItemStack.itemStack.getMetadata();
                 itemId.scale = scaledItemStack.scale;
                 jsonNutrient.food.items.add(itemId);
-                Collections.sort(jsonNutrient.food.items, (a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.id, b.id));
+                Collections.sort(jsonNutrient.food.items, (a, b) -> CompareUtil.compareTo(a.id, b.id));
             }
             String json = toJson(jsonNutrient);
             FileUtils.writeByteArrayToFile(nutrientFile, json.getBytes(StandardCharsets.UTF_8));
@@ -60,7 +60,7 @@ public class DataUpdater {
                             itemId.getMeta() == scaledItemStack.itemStack.getMetadata();
                 });
             }
-            String json = gson.toJson(jsonNutrient);
+            String json = toJson(jsonNutrient);
             FileUtils.writeByteArrayToFile(nutrientFile, json.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
