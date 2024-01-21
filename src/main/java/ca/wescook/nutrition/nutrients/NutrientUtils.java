@@ -3,7 +3,10 @@ package ca.wescook.nutrition.nutrients;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.BlockCake;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBlockSpecial;
@@ -51,19 +54,25 @@ public class NutrientUtils {
     // Calculate nutrition value for supplied food
     // Requires nutrient list from that food for performance reasons (see getFoodNutrients)
     public static float calculateNutrition(ItemStack itemStack, List<Nutrient> nutrients) {
+        return calculateNutrition(itemStack, nutrients, null);
+    }
+
+    public static float calculateNutrition(ItemStack itemStack, List<Nutrient> nutrients,
+                                           @Nullable EntityPlayer player) {
         // Get item/block
         Item item = itemStack.getItem();
 
         // Base food value
         int foodValue = 0;
-        if (item instanceof ItemFood)
+        if (item instanceof INutritionFood)
+            foodValue = ((INutritionFood) item).getHealAmount(itemStack, player); // Number of half-drumsticks food
+                                                                                  // heals
+        else if (item instanceof ItemFood)
             foodValue = ((ItemFood) item).getHealAmount(itemStack); // Number of half-drumsticks food heals
         else if (item instanceof ItemBlock || item instanceof ItemBlockSpecial) // Cake, most likely
             foodValue = 2; // Hardcoded value from vanilla
         else if (item instanceof ItemBucketMilk)
             foodValue = 4; // Hardcoded milk value
-        else if (item instanceof INutritionFood)
-            foodValue = ((INutritionFood) item).getHealAmount(itemStack); // Number of half-drumsticks food heals
 
         // Apply multipliers
         float adjustedFoodValue = (float) (foodValue * 0.5); // Halve to start at reasonable starting point

@@ -50,7 +50,7 @@ public class EventEatFood {
             // registry name
             ItemStack itemStack = new ItemStack(item);
             List<Nutrient> foundNutrients = NutrientUtils.getFoodNutrients(itemStack);
-            float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients);
+            float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients, player);
 
             // Add to each nutrient
             if (!player.getEntityWorld().isRemote) // Server
@@ -84,14 +84,13 @@ public class EventEatFood {
 
         // Is item food?
         Item item = itemStack.getItem();
-        if (item instanceof ItemFood) {
+        if (item instanceof INutritionFood iNutritionFood) {
+            if (Config.allowOverEating)
+                iNutritionFood.setAlwaysEdible(itemStack, player);
+        } else if (item instanceof ItemFood) {
             // If config allows, mark food as edible
             if (Config.allowOverEating)
                 ((ItemFood) item).setAlwaysEdible();
-        }
-        if (item instanceof INutritionFood iNutritionFood) {
-            if (Config.allowOverEating)
-                iNutritionFood.setAlwaysEdible();
         }
     }
 
@@ -119,11 +118,13 @@ public class EventEatFood {
     private void applyNutrition(EntityPlayer player, ItemStack itemStack) {
         // Get out if not food item
         if (itemStack.getItem() instanceof ItemFood || itemStack.getItem() instanceof ItemBucketMilk ||
-                itemStack.getItem() instanceof INutritionFood) {// Calculate nutrition
-            List<Nutrient> foundNutrients = NutrientUtils.getFoodNutrients(itemStack); // Nutrient list for that food
-            float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients); // Nutrition value for
-                                                                                                // that
-            // food
+                itemStack.getItem() instanceof INutritionFood) {
+            // Calculate nutrition
+
+            // Nutrient list for that food
+            List<Nutrient> foundNutrients = NutrientUtils.getFoodNutrients(itemStack);
+            // Nutrition value for that food
+            float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients, player);
 
             // Add to each nutrient
             if (!player.getEntityWorld().isRemote) // Server
