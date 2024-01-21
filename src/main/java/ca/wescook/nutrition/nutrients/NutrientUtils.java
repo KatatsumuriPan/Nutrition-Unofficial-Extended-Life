@@ -1,7 +1,7 @@
 package ca.wescook.nutrition.nutrients;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -16,74 +16,89 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import ca.wescook.nutrition.api.INutritionFood;
+import ca.wescook.nutrition.nutrients.Nutrient.ScaledItemStack;
 import ca.wescook.nutrition.utility.Config;
 import ca.wescook.nutrition.utility.Log;
 
 public class NutrientUtils {
 
-    // Returns list of nutrients that food belongs to
-    public static List<Nutrient> getFoodNutrients(ItemStack eatingFood) {
-        List<Nutrient> nutrientsFound = new ArrayList<>();
+    /**
+     * Calculate nutrition value for supplied food.
+     *
+     * @param itemStack Eating food stack.
+     * @param player    Eating player(Nullable).
+     * @return Nutrient and its value.
+     */
+    public static Map<Nutrient, Float> calculateNutrition(ItemStack itemStack, @Nullable EntityPlayer player) {
+        Map<Nutrient, Float> result = new LinkedHashMap<>();
+        for (Nutrient nutrient : NutrientList.get()) {
+            Float nutrientValue = getNutritionValue(nutrient, itemStack, player);
+            if (nutrientValue != null)
+                result.put(nutrient, nutrientValue);
+        }
+        applyNutritionLoss(result);
+        return result;
+    }
 
-        // Loop through nutrients to look for food
-        foodSearch:
-        for (Nutrient nutrient : NutrientList.get()) { // All nutrients
-            // Search foods
-            for (ItemStack listedFood : nutrient.foodItems) { // All foods in that category
-                if (listedFood.isItemEqual(eatingFood)) {
-                    nutrientsFound.add(nutrient); // Add nutrient
-                    continue foodSearch; // Skip rest of search in this nutrient, try others
-                }
-            }
+    @Nullable
+    private static Float getNutritionValue(Nutrient nutrient, ItemStack itemStack, @Nullable EntityPlayer player) {
+        // Search foods
+        for (ScaledItemStack listedFood : nutrient.foodItems) {
+            if (!listedFood.itemStack.isItemEqual(itemStack))
+                continue;
 
-            // Search ore dictionary
-            for (String listedOreDict : nutrient.foodOreDict) { // All ore dicts in that nutrient
-                for (ItemStack itemStack : OreDictionary.getOres(listedOreDict)) { // All items that match that oredict
-                    // (eg. listAllmilk)
-                    if (itemStack.isItemEqual(eatingFood)) { // Our food matches oredict
-                        nutrientsFound.add(nutrient); // Add nutrient
-                        continue foodSearch; // Skip rest of search in this nutrient, try others
-                    }
-                }
-            }
+            float baseFoodValue = getBaseFoodValue(itemStack, player);
+            float adjustedFoodValue = adjustFoodValue(baseFoodValue);
+            // Remains are skipped.
+            // (Only the first element is applied if it has duplicated ones.)
+            return adjustedFoodValue * listedFood.scale;
         }
 
-        return nutrientsFound;
+        // Search ore dictionary
+        for (String listedOreDict : nutrient.foodOreDict) {
+            // Example
+            // - listAllmilk
+            for (ItemStack itemStack1 : OreDictionary.getOres(listedOreDict)) {
+                if (!itemStack1.isItemEqual(itemStack))
+                    continue;
+
+                float baseFoodValue = getBaseFoodValue(itemStack, player);
+                return adjustFoodValue(baseFoodValue);
+            }
+        }
+        return null;
     }
 
-    // Calculate nutrition value for supplied food
-    // Requires nutrient list from that food for performance reasons (see getFoodNutrients)
-    public static float calculateNutrition(ItemStack itemStack, List<Nutrient> nutrients) {
-        return calculateNutrition(itemStack, nutrients, null);
-    }
-
-    public static float calculateNutrition(ItemStack itemStack, List<Nutrient> nutrients,
-                                           @Nullable EntityPlayer player) {
-        // Get item/block
+    private static float getBaseFoodValue(ItemStack itemStack, @Nullable EntityPlayer player) {
         Item item = itemStack.getItem();
-
-        // Base food value
-        int foodValue = 0;
         if (item instanceof INutritionFood)
-            foodValue = ((INutritionFood) item).getHealAmount(itemStack, player); // Number of half-drumsticks food
-                                                                                  // heals
+            return ((INutritionFood) item).getHealAmount(itemStack, player);
         else if (item instanceof ItemFood)
-            foodValue = ((ItemFood) item).getHealAmount(itemStack); // Number of half-drumsticks food heals
+            return ((ItemFood) item).getHealAmount(itemStack);
         else if (item instanceof ItemBlock || item instanceof ItemBlockSpecial) // Cake, most likely
-            foodValue = 2; // Hardcoded value from vanilla
+            return 2; // Hardcoded value from vanilla
         else if (item instanceof ItemBucketMilk)
-            foodValue = 4; // Hardcoded milk value
+            return 4; // Hardcoded milk value
+        else
+            return 0;
+    }
 
-        // Apply multipliers
-        float adjustedFoodValue = (float) (foodValue * 0.5); // Halve to start at reasonable starting point
-        adjustedFoodValue = adjustedFoodValue * Config.nutritionMultiplier; // Multiply by config value
-        float lossPercentage = (float) Config.lossPerNutrient / 100; // Loss percentage from config file
-        float foodLoss = (adjustedFoodValue * lossPercentage * (nutrients.size() - 1)); // Lose 15% (configurable) for
-        // each nutrient added after the
-        // first nutrient
-        float nutritionValue = Math.max(0, adjustedFoodValue - foodLoss); // Subtract from true value, with a floor of 0
+    private static float adjustFoodValue(float baseFoodValue) {
+        float adjustedFoodValue = baseFoodValue * 0.5f; // Halve to start at reasonable starting point
+        adjustedFoodValue = adjustedFoodValue * Config.nutritionMultiplier;
+        return adjustedFoodValue;
+    }
 
-        return nutritionValue;
+    private static void applyNutritionLoss(Map<Nutrient, Float> nutritionValues) {
+        // Lose 15% (configurable) for each nutrient added after the first nutrient
+        // Examples
+        // - [Grain] only -> 0% loss
+        // - [Protain, Vegetable] -> 15% loss
+        // - [Dairy, Fruit, Protain] -> 30% loss
+        // Max loss is 100%. XD
+        float lossRatio = Math.min(1, (float) Config.lossPerNutrient / 100f * (nutritionValues.size() - 1));
+
+        nutritionValues.replaceAll((nutrition, nutritionValue) -> nutritionValue * (1 - lossRatio));
     }
 
     // Verify it meets a valid type
@@ -114,11 +129,11 @@ public class NutrientUtils {
         return false;
     }
 
-    // List all foods registered in-game without nutrients
-    public static void findRegisteredFoods() {
+    // Log all foods registered in-game without nutrients
+    public static void logMissingNutrients() {
         for (Item item : Item.REGISTRY) {
             ItemStack itemStack = new ItemStack(item);
-            if (isValidFood(itemStack) && getFoodNutrients(itemStack).size() == 0)
+            if (isValidFood(itemStack) && calculateNutrition(itemStack, null).isEmpty())
                 Log.warn("Registered food without nutrients: " + item.getRegistryName());
         }
     }

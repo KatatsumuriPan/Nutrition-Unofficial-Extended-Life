@@ -25,7 +25,7 @@ public interface INutrientManager {
     void add(Nutrient nutrient, float amount);
 
     // Increase list of nutrients by amount
-    void add(List<Nutrient> nutrientData, float amount);
+    void add(Map<Nutrient, Float> nutritionAmounts);
 
     // Decrease specific nutrient by amount
     void subtract(Nutrient nutrient, float amount);

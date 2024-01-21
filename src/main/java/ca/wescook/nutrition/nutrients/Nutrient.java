@@ -14,5 +14,16 @@ public class Nutrient {
     public float decay;
     public boolean visible;
     public List<String> foodOreDict = new ArrayList<>();
-    public List<ItemStack> foodItems = new ArrayList<>();
+    public List<ScaledItemStack> foodItems = new ArrayList<>();
+
+    public static class ScaledItemStack {
+
+        public final ItemStack itemStack;
+        public final float scale;
+
+        public ScaledItemStack(ItemStack itemStack, float scale) {
+            this.itemStack = itemStack;
+            this.scale = scale;
+        }
+    }
 }
