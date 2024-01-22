@@ -1,4 +1,19 @@
-## Changelog
+# Changelog
+
+## Nutrition Unofficial Extended Life
+
+[v4.13.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.13.0) - 2024-01-21
+- Add "scale" option to Nutrients.
+- Add nutrition-food command.
+- Add java docs of the API.
+
+[v4.12.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.12.0) - 2024-01-20
+- Change API signature(INutritionFood)!
+
+[v4.11.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.11.0) - 2024-01-20
+- Add an API: INutritionFood.
+
+## Nutrition (Original)
 
 [v4.9.0](https://github.com/WesCook/Nutrition/releases/tag/v4.9.0) - 2021-08-26
 * Added support for Pam's BreadCraft
