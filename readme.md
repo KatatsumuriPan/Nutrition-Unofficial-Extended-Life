@@ -1,6 +1,10 @@
-# Nutrition Unoffical Extended life
+# Nutrition Unofficial Extended life
 
-This is an unoffical fork of [Nutrition](https://github.com/WesCook/Nutrition).
+This is an unofficial fork of [Nutrition](https://github.com/WesCook/Nutrition).
+
+# Credit
+
+This mod is created using [GregTechCEu's Buildscripts](https://github.com/GregTechCEu/Buildscripts)
 
 # Nutrition
 

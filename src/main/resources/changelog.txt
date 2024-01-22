@@ -1,3 +1,7 @@
+version 4.13.0 :
+- Add "scale" option to Nutrients.
+- Add nutrition-food command.
+- Add java docs of the API.
 version 4.12.0 :
 - Change API signature(INutritionFood)!
 version 4.11.0 :

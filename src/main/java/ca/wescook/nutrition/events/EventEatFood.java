@@ -1,6 +1,6 @@
 package ca.wescook.nutrition.events;
 
-import java.util.List;
+import java.util.Map;
 
 import net.minecraft.block.BlockCake;
 import net.minecraft.block.state.IBlockState;
@@ -49,14 +49,13 @@ public class EventEatFood {
             Item item = Item.getByNameOrId(blockState.getBlock().getRegistryName().toString()); // Get cake Item from
             // registry name
             ItemStack itemStack = new ItemStack(item);
-            List<Nutrient> foundNutrients = NutrientUtils.getFoodNutrients(itemStack);
-            float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients, player);
+            Map<Nutrient, Float> nutrientValues = NutrientUtils.calculateNutrition(itemStack, player);
 
             // Add to each nutrient
             if (!player.getEntityWorld().isRemote) // Server
-                player.getCapability(NUTRITION_CAPABILITY, null).add(foundNutrients, nutritionValue);
+                player.getCapability(NUTRITION_CAPABILITY, null).add(nutrientValues);
             else // Client
-                ClientProxy.localNutrition.add(foundNutrients, nutritionValue);
+                ClientProxy.localNutrition.add(nutrientValues);
 
             // If full but over-eating, simulate cake eating
             if (!player.getEntityWorld().isRemote && !player.canEat(false) && Config.allowOverEating) {
@@ -120,17 +119,13 @@ public class EventEatFood {
         if (itemStack.getItem() instanceof ItemFood || itemStack.getItem() instanceof ItemBucketMilk ||
                 itemStack.getItem() instanceof INutritionFood) {
             // Calculate nutrition
-
-            // Nutrient list for that food
-            List<Nutrient> foundNutrients = NutrientUtils.getFoodNutrients(itemStack);
-            // Nutrition value for that food
-            float nutritionValue = NutrientUtils.calculateNutrition(itemStack, foundNutrients, player);
+            Map<Nutrient, Float> nutrientValues = NutrientUtils.calculateNutrition(itemStack, player);
 
             // Add to each nutrient
             if (!player.getEntityWorld().isRemote) // Server
-                player.getCapability(NUTRITION_CAPABILITY, null).add(foundNutrients, nutritionValue);
+                player.getCapability(NUTRITION_CAPABILITY, null).add(nutrientValues);
             else // Client
-                ClientProxy.localNutrition.add(foundNutrients, nutritionValue);
+                ClientProxy.localNutrition.add(nutrientValues);
         }
     }
 

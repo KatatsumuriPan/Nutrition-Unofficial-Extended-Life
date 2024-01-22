@@ -25,6 +25,7 @@ import ca.wescook.nutrition.capabilities.INutrientManager;
 import ca.wescook.nutrition.effects.EffectsList;
 import ca.wescook.nutrition.effects.JsonEffect;
 import ca.wescook.nutrition.nutrients.JsonNutrient;
+import ca.wescook.nutrition.nutrients.JsonNutrient.Food.ItemId;
 import ca.wescook.nutrition.nutrients.NutrientList;
 import ca.wescook.nutrition.nutrients.NutrientUtils;
 
@@ -34,7 +35,8 @@ public class DataImporter {
     @CapabilityInject(INutrientManager.class)
     private static final Capability<INutrientManager> NUTRITION_CAPABILITY = null;
 
-    private static final Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create();
+    private static final Gson gson = new GsonBuilder().registerTypeAdapter(ItemId.class, new ItemId.Adapter())
+            .enableComplexMapKeySerialization().setPrettyPrinting().create();
 
     // Loads nutrients from JSONs and API
     // Runs initially during Post-Init, or from /reload command
@@ -45,14 +47,15 @@ public class DataImporter {
 
         // List all foods registered in-game without nutrients
         if (Config.logMissingNutrients)
-            NutrientUtils.findRegisteredFoods();
+            NutrientUtils.logMissingNutrients();
     }
 
     // Updates player capabilities on server so object IDs match those in NutrientList
     public static void updatePlayerCapabilitiesOnServer(MinecraftServer server) {
-        for (EntityPlayerMP player : server.getPlayerList().getPlayers())
+        for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
             if (!server.getWorld(0).isRemote)
                 player.getCapability(NUTRITION_CAPABILITY, null).updateCapability();
+        }
     }
 
     //////////////////////////////////////////////////
@@ -75,8 +78,8 @@ public class DataImporter {
         return readConfigurationDirectory(JsonEffect.class, effectsDirectory);
     }
 
-    // Copies files from internal resources to external files. Accepts an input resource path, output directory, and
-    // list of files
+    // Copies files from internal resources to external files.
+    // Accepts an input resource path, output directory, and list of files
     private static void createConfigurationDirectory(String inputDirectory, File outputDirectory, List<String> files) {
         // Make no changes if directory already exists
         if (outputDirectory.exists())
@@ -88,9 +91,7 @@ public class DataImporter {
         // Copy each file over
         ClassLoader loader = Thread.currentThread().getContextClassLoader(); // Can access resources via class loader
         for (String file : files) {
-            try (InputStream inputStream = loader.getResourceAsStream(inputDirectory + "/" + file)) { // Get input
-                                                                                                      // stream of
-                                                                                                      // resource
+            try (InputStream inputStream = loader.getResourceAsStream(inputDirectory + "/" + file)) {
                 Files.copy(inputStream, new File(outputDirectory + "/" + file).toPath()); // Create files from stream
             } catch (IOException e) {
                 e.printStackTrace();
@@ -98,8 +99,9 @@ public class DataImporter {
         }
     }
 
-    // Reads in JSON as objects. Accepts object to serialize into, and directory to read json files. Returns array of
-    // JSON objects.
+    // Reads in JSON as objects.
+    // Accepts object to serialize into, and directory to read json files.
+    // Returns array of JSON objects.
     private static <T> List<T> readConfigurationDirectory(Class<T> classImport, File configDirectory) {
         File[] files = configDirectory.listFiles(); // List json files
         List<T> jsonObjectList = new ArrayList<>(); // List json objects
@@ -108,8 +110,7 @@ public class DataImporter {
             if (FilenameUtils.isExtension(file.getName(), "json")) {
                 try {
                     JsonReader jsonReader = new JsonReader(new FileReader(file)); // Read in JSON
-                    jsonObjectList.add(gson.fromJson(jsonReader, classImport)); // Deserialize with GSON and store for
-                                                                                // later processing
+                    jsonObjectList.add(gson.fromJson(jsonReader, classImport));
                 } catch (IOException | com.google.gson.JsonSyntaxException e) {
                     Log.fatal("The file " + file.getName() + " has invalid JSON and could not be loaded.");
                     throw new IllegalArgumentException("Unable to load " + file.getName() + ".  Is the JSON valid?", e);

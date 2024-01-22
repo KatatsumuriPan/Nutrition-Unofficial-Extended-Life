@@ -8,13 +8,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.Loader;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import ca.wescook.nutrition.effects.Effect;
 import ca.wescook.nutrition.effects.JsonEffect;
 import ca.wescook.nutrition.nutrients.JsonNutrient;
+import ca.wescook.nutrition.nutrients.JsonNutrient.Food.ItemId;
 import ca.wescook.nutrition.nutrients.Nutrient;
+import ca.wescook.nutrition.nutrients.Nutrient.ScaledItemStack;
 import ca.wescook.nutrition.nutrients.NutrientList;
 import ca.wescook.nutrition.nutrients.NutrientUtils;
 
@@ -35,8 +34,8 @@ public class DataParser {
             // Name, icon color
             try {
                 nutrient.name = nutrientRaw.name;
-                nutrient.icon = new ItemStack(Item.getByNameOrId(nutrientRaw.icon)); // Create ItemStack used to
-                                                                                     // represent icon
+                // Create ItemStack used to represent icon
+                nutrient.icon = new ItemStack(Item.getByNameOrId(nutrientRaw.icon));
                 nutrient.color = Integer.parseUnsignedInt("ff" + nutrientRaw.color, 16); // Convert hex string to int
             } catch (NullPointerException e) {
                 Log.fatal("Missing or invalid JSON.  A name, icon, and color are required.");
@@ -64,56 +63,26 @@ public class DataParser {
 
             // Food Items
             if (nutrientRaw.food.items != null) {
-                for (String fullName : nutrientRaw.food.items) {
-                    // Initial values
-                    String name = fullName;
-                    int metadata = 0;
-
-                    // Null check input string
-                    if (name == null) {
-                        Log.fatal("There is a null item in the '" + nutrient.name +
-                                "' JSON.  Check for a trailing comma in the file.");
-                        throw new NullPointerException("There is a null item in the '" + nutrient.name +
-                                "' JSON.  Check for a trailing comma in the file.");
-                    }
-
-                    // If string includes meta data, update name/meta
-                    if (StringUtils.countMatches(fullName, ":") == 2) { // Two colons for metadata (eg.
-                                                                        // minecraft:golden_apple:1)
-                        // Get data
-                        name = StringUtils.substringBeforeLast(fullName, ":");
-                        String metaString = StringUtils.substringAfterLast(fullName, ":");
-
-                        // Is valid metadata
-                        if (NumberUtils.isCreatable(metaString))
-                            metadata = Integer.decode(metaString);
-                        else {
-                            Log.warn(fullName + " does not contain valid metadata");
-                            continue;
-                        }
-                    }
-
-                    // Get item
+                for (ItemId idScale : nutrientRaw.food.items) {
+                    String name = idScale.id;
+                    int metadata = idScale.getMeta();
                     Item item = Item.getByNameOrId(name);
 
-                    // Item ID not found, issue warning and skip adding item
                     if (item == null) {
-                        String modid = fullName.substring(0, fullName.indexOf(":")); // Get string before first colon
+                        // Item ID not found, issue warning and skip adding item
+                        String modid = name.substring(0, name.indexOf(":"));
                         if (Config.logMissingFood && Loader.isModLoaded(modid))
-                            Log.warn("Food with nutrients doesn't exist: " + fullName + " (" + nutrient.name + ")");
+                            Log.warn("Food with nutrients doesn't exist: " + name + " (" + nutrient.name + ")");
                         continue;
                     }
 
-                    // Add to nutrient, or report error
                     ItemStack itemStack = new ItemStack(item, 1, metadata);
                     if (NutrientUtils.isValidFood(itemStack))
-                        nutrient.foodItems.add(itemStack);
+                        nutrient.foodItems.add(new ScaledItemStack(itemStack, (float) idScale.scale));
                     else
-                        Log.warn(name + " is not a valid food (" + fullName + ")");
+                        Log.warn(name + " is not a valid food");
                 }
             }
-
-            // Register nutrient
             nutrients.add(nutrient);
         }
 
