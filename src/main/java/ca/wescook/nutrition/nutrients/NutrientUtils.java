@@ -1,6 +1,8 @@
 package ca.wescook.nutrition.nutrients;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -90,15 +92,23 @@ public class NutrientUtils {
     }
 
     private static void applyNutritionLoss(Map<Nutrient, Float> nutritionValues) {
-        // Lose 15% (configurable) for each nutrient added after the first nutrient
-        // Examples
-        // - [Grain] only -> 0% loss
-        // - [Protain, Vegetable] -> 15% loss
-        // - [Dairy, Fruit, Protain] -> 30% loss
-        // Max loss is 100%. XD
-        float lossRatio = Math.min(1, (float) Config.lossPerNutrient / 100f * (nutritionValues.size() - 1));
-
+        float lossRatio = getLossRatio(nutritionValues.size());
         nutritionValues.replaceAll((nutrition, nutritionValue) -> nutritionValue * (1 - lossRatio));
+    }
+
+    /**
+     * Lose 15% (configurable) for each nutrient added after the first nutrient
+     * Examples
+     * - [Grain] only -> 0% loss
+     * - [Protain, Vegetable] -> 15% loss
+     * - [Dairy, Fruit, Protain] -> 30% loss
+     * Max loss is 100%. XD
+     *
+     * @param nutritionNum Number of nutritions
+     * @return Nutrition loss
+     */
+    private static float getLossRatio(int nutritionNum) {
+        return Math.min(1, (float) Config.lossPerNutrient / 100f * (nutritionNum - 1));
     }
 
     // Verify it meets a valid type
@@ -133,8 +143,78 @@ public class NutrientUtils {
     public static void logMissingNutrients() {
         for (Item item : Item.REGISTRY) {
             ItemStack itemStack = new ItemStack(item);
-            if (isValidFood(itemStack) && calculateNutrition(itemStack, null).isEmpty())
+            if (isValidFood(itemStack) && calculateNutrition(itemStack, (EntityPlayer) null).isEmpty())
                 Log.warn("Registered food without nutrients: " + item.getRegistryName());
         }
+    }
+
+    // Deprecated
+
+    /**
+     * Use @{@link NutrientUtils#calculateNutrition(ItemStack, EntityPlayer)}.
+     */
+    @Deprecated
+    public static List<Nutrient> getFoodNutrients(ItemStack eatingFood) {
+        List<Nutrient> nutrientsFound = new ArrayList<>();
+
+        // Loop through nutrients to look for food
+        foodSearch:
+        for (Nutrient nutrient : NutrientList.get()) { // All nutrients
+            // Search foods
+            for (ScaledItemStack listedFood : nutrient.foodItems) { // All foods in that category
+                if (listedFood.itemStack.isItemEqual(eatingFood)) {
+                    nutrientsFound.add(nutrient); // Add nutrient
+                    continue foodSearch; // Skip rest of search in this nutrient, try others
+                }
+            }
+
+            // Search ore dictionary
+            for (String listedOreDict : nutrient.foodOreDict) { // All ore dicts in that nutrient
+                for (ItemStack itemStack : OreDictionary.getOres(listedOreDict)) { // All items that match that oredict
+                    // (eg. listAllmilk)
+                    if (itemStack.isItemEqual(eatingFood)) { // Our food matches oredict
+                        nutrientsFound.add(nutrient); // Add nutrient
+                        continue foodSearch; // Skip rest of search in this nutrient, try others
+                    }
+                }
+            }
+        }
+
+        return nutrientsFound;
+    }
+
+    /**
+     * Use @{@link NutrientUtils#calculateNutrition(ItemStack, EntityPlayer)}.
+     * This method returns the RAW nutrition value, not scaled by the value in the config(json) file!
+     */
+    @Deprecated
+    public static float calculateNutrition(ItemStack itemStack, List<Nutrient> nutrients) {
+        return calculateNutrition(itemStack, nutrients, null);
+    }
+
+    /**
+     * Use @{@link NutrientUtils#calculateNutrition(ItemStack, EntityPlayer)}.
+     * This method returns the RAW nutrition value, not scaled by the value in the config(json) file!
+     */
+    @Deprecated
+    public static float calculateNutrition(ItemStack itemStack, List<Nutrient> nutrients,
+                                           @Nullable EntityPlayer player) {
+        // Base food value
+        float baseFoodValue = getBaseFoodValue(itemStack, player);
+
+        // Apply multipliers
+        float adjustedFoodValue = adjustFoodValue(baseFoodValue);
+        float nutritionValue = Math.max(0, adjustedFoodValue - getLossRatio(nutrients.size())); // Subtract from true
+                                                                                                // value, with a floor
+                                                                                                // of 0
+        return nutritionValue;
+    }
+
+    /**
+     * Use @{@link NutrientUtils#logMissingNutrients()} if absolutely necessary.
+     */
+    @Deprecated
+    public static void findRegisteredFoods() {
+        logMissingNutrients();
     }
 }
