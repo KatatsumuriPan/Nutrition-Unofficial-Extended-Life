@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 import ca.wescook.nutrition.nutrients.NutrientList;
+import ca.wescook.nutrition.nutrients.NutritionAdapterManager;
 import ca.wescook.nutrition.nutrients.NutritionUtilImpl;
 
 /**
@@ -100,5 +101,15 @@ public class NutritionUtil {
      */
     public static void resetNutrient(EntityPlayer player, INutrient nutrient) {
         NutritionUtilImpl.resetNutrient(player, nutrient);
+    }
+
+    /**
+     * Register INutritionFoodAdapter.
+     *
+     * @param adapter Adapter to register
+     */
+    @SuppressWarnings("deprecation")
+    public static void register(INutritionFoodAdapter adapter) {
+        NutritionAdapterManager.register(adapter);
     }
 }

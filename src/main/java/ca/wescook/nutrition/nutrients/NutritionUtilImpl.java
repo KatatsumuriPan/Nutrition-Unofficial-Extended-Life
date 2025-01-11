@@ -78,9 +78,16 @@ public class NutritionUtilImpl {
     }
 
     private static float getBaseFoodValue(ItemStack itemStack, @Nullable EntityPlayer player) {
+        // INutritionFoodAdapter
+        INutritionFood adapted = NutritionAdapterManager.apply(itemStack);
+        if (adapted != null)
+            return adapted.getHealAmount(itemStack, player);
+
+        // FoodHint
         Float healAmount = FoodHintList.getHealAmount(itemStack);
         if (healAmount != null)
             return healAmount;
+
         Item item = itemStack.getItem();
         if (item instanceof INutritionFood)
             return ((INutritionFood) item).getHealAmount(itemStack, player);
@@ -123,6 +130,11 @@ public class NutritionUtilImpl {
     // Verify it meets a valid type
     // Little bit of guesswork in this one...
     public static boolean isValidFood(ItemStack itemStack) {
+        // INutritionFoodAdapter
+        INutritionFood adapted = NutritionAdapterManager.apply(itemStack);
+        if (adapted != null)
+            return true;
+
         // FoodHint
         Boolean result = FoodHintList.isValidFood(itemStack);
         if (result != null)
