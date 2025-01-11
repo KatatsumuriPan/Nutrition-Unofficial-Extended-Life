@@ -116,17 +116,17 @@ public class EventEatFood {
     // Add found nutrients to player
     private void applyNutrition(EntityPlayer player, ItemStack itemStack) {
         // Get out if not food item
-        if (itemStack.getItem() instanceof ItemFood || itemStack.getItem() instanceof ItemBucketMilk ||
-                itemStack.getItem() instanceof INutritionFood) {
-            // Calculate nutrition
-            Map<Nutrient, Float> nutrientValues = NutrientUtils.calculateNutrition(itemStack, player);
-
-            // Add to each nutrient
-            if (!player.getEntityWorld().isRemote) // Server
-                player.getCapability(NUTRITION_CAPABILITY, null).add(nutrientValues);
-            else // Client
-                ClientProxy.localNutrition.add(nutrientValues);
+        if (!NutrientUtils.isValidFood(itemStack)) {
+            return;
         }
+        // Calculate nutrition
+        Map<Nutrient, Float> nutrientValues = NutrientUtils.calculateNutrition(itemStack, player);
+
+        // Add to each nutrient
+        if (!player.getEntityWorld().isRemote) // Server
+            player.getCapability(NUTRITION_CAPABILITY, null).add(nutrientValues);
+        else // Client
+            ClientProxy.localNutrition.add(nutrientValues);
     }
 
     // If milk clears effects, reapply immediately

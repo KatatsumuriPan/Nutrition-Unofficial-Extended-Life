@@ -72,6 +72,9 @@ public class NutrientUtils {
     }
 
     private static float getBaseFoodValue(ItemStack itemStack, @Nullable EntityPlayer player) {
+        Float healAmount = FoodHintList.getHealAmount(itemStack);
+        if (healAmount != null)
+            return healAmount;
         Item item = itemStack.getItem();
         if (item instanceof INutritionFood)
             return ((INutritionFood) item).getHealAmount(itemStack, player);
@@ -114,6 +117,10 @@ public class NutrientUtils {
     // Verify it meets a valid type
     // Little bit of guesswork in this one...
     public static boolean isValidFood(ItemStack itemStack) {
+        Boolean result = FoodHintList.isValidFood(itemStack);
+        if (result != null)
+            return result;
+
         Item item = itemStack.getItem();
 
         // Regular ItemFood
