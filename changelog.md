@@ -2,6 +2,12 @@
 
 ## Nutrition Unofficial Extended Life
 
+[v4.14.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.14.0) - 2025-01/11
+- Add new config file: food_hint.json.
+- Add new API interface: INutrition.
+- Add new API utility class: NutritionUtil.
+- Add new API : INutritionFoodAdapter.
+
 [v4.13.1](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.13.1) - 2024-12-06
 - Fix backward compatibility. (New feature nutrition-scaling is not available through the old APIs.)
 
