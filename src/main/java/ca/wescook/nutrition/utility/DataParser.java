@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.Loader;
 
-
+import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.effects.Effect;
 import ca.wescook.nutrition.effects.JsonEffect;
 import ca.wescook.nutrition.nutrients.FoodHint;
@@ -21,7 +22,6 @@ import ca.wescook.nutrition.nutrients.JsonNutrient.Food.ItemId;
 import ca.wescook.nutrition.nutrients.Nutrient;
 import ca.wescook.nutrition.nutrients.Nutrient.ScaledItemStack;
 import ca.wescook.nutrition.nutrients.NutrientList;
-import ca.wescook.nutrition.nutrients.NutrientUtils;
 
 public class DataParser {
 
@@ -80,7 +80,7 @@ public class DataParser {
                         continue;
                     }
 
-                    if (NutrientUtils.isValidFood(itemStack))
+                    if (NutritionUtil.isValidFood(itemStack))
                         nutrient.foodItems.add(new ScaledItemStack(itemStack, (float) idScale.scale));
                     else
                         Log.warn(name + " is not a valid food");
@@ -185,7 +185,7 @@ public class DataParser {
     }
 
     @Nullable
-    private static  ItemStack getItemStack(String name, int metadata) {
+    private static ItemStack getItemStack(String name, int metadata) {
         Item item = Item.getByNameOrId(name);
 
         if (item == null) {

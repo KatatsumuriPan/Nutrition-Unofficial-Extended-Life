@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
@@ -22,6 +24,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
 import ca.wescook.nutrition.Tags;
+import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.capabilities.INutrientManager;
 import ca.wescook.nutrition.effects.EffectsList;
 import ca.wescook.nutrition.effects.JsonEffect;
@@ -31,7 +34,6 @@ import ca.wescook.nutrition.nutrients.JsonFoodHint.FoodHintRaw;
 import ca.wescook.nutrition.nutrients.JsonNutrient;
 import ca.wescook.nutrition.nutrients.JsonNutrient.Food.ItemId;
 import ca.wescook.nutrition.nutrients.NutrientList;
-import ca.wescook.nutrition.nutrients.NutrientUtils;
 
 // Handles JSON and API data loading
 public class DataImporter {
@@ -54,7 +56,7 @@ public class DataImporter {
 
         // List all foods registered in-game without nutrients
         if (Config.logMissingNutrients)
-            NutrientUtils.logMissingNutrients();
+            logMissingNutrients();
     }
 
     // Updates player capabilities on server so object IDs match those in NutrientList
@@ -167,5 +169,14 @@ public class DataImporter {
         }
 
         return Optional.empty();
+    }
+
+    // Log all foods registered in-game without nutrients
+    private static void logMissingNutrients() {
+        for (Item item : Item.REGISTRY) {
+            ItemStack itemStack = new ItemStack(item);
+            if (NutritionUtil.isValidFood(itemStack) && NutritionUtil.calculateNutrition(itemStack, null).isEmpty())
+                Log.warn("Registered food without nutrients: " + item.getRegistryName());
+        }
     }
 }

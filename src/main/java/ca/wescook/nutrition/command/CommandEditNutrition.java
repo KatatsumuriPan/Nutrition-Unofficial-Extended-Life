@@ -31,10 +31,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 import ca.wescook.nutrition.Tags;
+import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.nutrients.Nutrient;
 import ca.wescook.nutrition.nutrients.Nutrient.ScaledItemStack;
 import ca.wescook.nutrition.nutrients.NutrientList;
-import ca.wescook.nutrition.nutrients.NutrientUtils;
+import ca.wescook.nutrition.nutrients.NutritionUtilImpl;
 import ca.wescook.nutrition.utility.DataUpdater;
 
 public class CommandEditNutrition extends CommandBase {
@@ -71,7 +72,7 @@ public class CommandEditNutrition extends CommandBase {
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         if (sender instanceof EntityPlayer player) {
             ItemStack heldItem = player.getHeldItem(EnumHand.MAIN_HAND);
-            if (!NutrientUtils.isValidFood(heldItem)) {
+            if (!NutritionUtil.isValidFood(heldItem)) {
                 throw new CommandException("Holding item is not food!");
             }
             switch (args.length) {
@@ -139,7 +140,7 @@ public class CommandEditNutrition extends CommandBase {
 
     private static String createInfo(ItemStack itemStack, EntityPlayer player) {
         Multimap<Float, Nutrient> nutritionValue2Nutrient = ArrayListMultimap.create();
-        for (Entry<Nutrient, Float> entry : NutrientUtils.calculateNutrition(itemStack, player)
+        for (Entry<Nutrient, Float> entry : NutritionUtilImpl.calculateNutrition(itemStack, player)
                 .entrySet()) {
             nutritionValue2Nutrient.put(entry.getValue(), entry.getKey());
         }

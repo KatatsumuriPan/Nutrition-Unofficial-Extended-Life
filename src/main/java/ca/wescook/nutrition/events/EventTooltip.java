@@ -14,8 +14,9 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import ca.wescook.nutrition.Tags;
+import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.nutrients.Nutrient;
-import ca.wescook.nutrition.nutrients.NutrientUtils;
+import ca.wescook.nutrition.nutrients.NutritionUtilImpl;
 
 public class EventTooltip {
 
@@ -24,11 +25,11 @@ public class EventTooltip {
         ItemStack itemStack = event.getItemStack();
 
         // Get out if not a food item
-        if (!NutrientUtils.isValidFood(itemStack))
+        if (!NutritionUtil.isValidFood(itemStack))
             return;
 
         Multimap<Float, Nutrient> nutritionValue2Nutrient = ArrayListMultimap.create();
-        for (Entry<Nutrient, Float> entry : NutrientUtils.calculateNutrition(itemStack, event.getEntityPlayer())
+        for (Entry<Nutrient, Float> entry : NutritionUtilImpl.calculateNutrition(itemStack, event.getEntityPlayer())
                 .entrySet()) {
             nutritionValue2Nutrient.put(entry.getValue(), entry.getKey());
         }
