@@ -1,4 +1,4 @@
-package ca.wescook.nutrition.utility;
+package ca.wescook.nutrition.command;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +24,7 @@ import ca.wescook.nutrition.capabilities.INutrientManager;
 import ca.wescook.nutrition.network.Sync;
 import ca.wescook.nutrition.nutrients.Nutrient;
 import ca.wescook.nutrition.nutrients.NutrientList;
+import ca.wescook.nutrition.utility.DataImporter;
 
 public class ChatCommand extends CommandBase {
 
