@@ -17,10 +17,11 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import ca.wescook.nutrition.api.INutritionFood;
+import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.capabilities.INutrientManager;
 import ca.wescook.nutrition.effects.EffectsManager;
 import ca.wescook.nutrition.nutrients.Nutrient;
-import ca.wescook.nutrition.nutrients.NutrientUtils;
+import ca.wescook.nutrition.nutrients.NutritionUtilImpl;
 import ca.wescook.nutrition.proxy.ClientProxy;
 import ca.wescook.nutrition.utility.Config;
 
@@ -49,7 +50,7 @@ public class EventEatFood {
             Item item = Item.getByNameOrId(blockState.getBlock().getRegistryName().toString()); // Get cake Item from
             // registry name
             ItemStack itemStack = new ItemStack(item);
-            Map<Nutrient, Float> nutrientValues = NutrientUtils.calculateNutrition(itemStack, player);
+            Map<Nutrient, Float> nutrientValues = NutritionUtilImpl.calculateNutrition(itemStack, player);
 
             // Add to each nutrient
             if (!player.getEntityWorld().isRemote) // Server
@@ -109,24 +110,8 @@ public class EventEatFood {
 
         // Apply actions to item
         EntityPlayer player = (EntityPlayer) event.getEntity();
-        applyNutrition(player, dummyStack);
+        NutritionUtil.addNutrientsToPlayer(player, dummyStack);
         reapplyEffectsFromMilk(player, dummyStack);
-    }
-
-    // Add found nutrients to player
-    private void applyNutrition(EntityPlayer player, ItemStack itemStack) {
-        // Get out if not food item
-        if (itemStack.getItem() instanceof ItemFood || itemStack.getItem() instanceof ItemBucketMilk ||
-                itemStack.getItem() instanceof INutritionFood) {
-            // Calculate nutrition
-            Map<Nutrient, Float> nutrientValues = NutrientUtils.calculateNutrition(itemStack, player);
-
-            // Add to each nutrient
-            if (!player.getEntityWorld().isRemote) // Server
-                player.getCapability(NUTRITION_CAPABILITY, null).add(nutrientValues);
-            else // Client
-                ClientProxy.localNutrition.add(nutrientValues);
-        }
     }
 
     // If milk clears effects, reapply immediately

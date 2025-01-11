@@ -7,8 +7,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
@@ -21,13 +24,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
 import ca.wescook.nutrition.Tags;
+import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.capabilities.INutrientManager;
 import ca.wescook.nutrition.effects.EffectsList;
 import ca.wescook.nutrition.effects.JsonEffect;
+import ca.wescook.nutrition.nutrients.FoodHintList;
+import ca.wescook.nutrition.nutrients.JsonFoodHint;
+import ca.wescook.nutrition.nutrients.JsonFoodHint.FoodHintRaw;
 import ca.wescook.nutrition.nutrients.JsonNutrient;
 import ca.wescook.nutrition.nutrients.JsonNutrient.Food.ItemId;
 import ca.wescook.nutrition.nutrients.NutrientList;
-import ca.wescook.nutrition.nutrients.NutrientUtils;
 
 // Handles JSON and API data loading
 public class DataImporter {
@@ -35,19 +41,22 @@ public class DataImporter {
     @CapabilityInject(INutrientManager.class)
     private static final Capability<INutrientManager> NUTRITION_CAPABILITY = null;
 
-    private static final Gson gson = new GsonBuilder().registerTypeAdapter(ItemId.class, new ItemId.Adapter())
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(ItemId.class, new ItemId.Adapter())
+            .registerTypeAdapter(FoodHintRaw.class, new FoodHintRaw.Adapter())
             .enableComplexMapKeySerialization().setPrettyPrinting().create();
 
     // Loads nutrients from JSONs and API
     // Runs initially during Post-Init, or from /reload command
     // Always call updatePlayerCapabilitiesOnServer() afterwards if world is loaded
     public static void reload() {
+        FoodHintList.register(DataParser.parseFoodHints(loadJsonFoodHints()));
         NutrientList.register(DataParser.parseNutrients(loadJsonNutrients()));
         EffectsList.register(DataParser.parseEffects(loadJsonEffects()));
 
         // List all foods registered in-game without nutrients
         if (Config.logMissingNutrients)
-            NutrientUtils.logMissingNutrients();
+            logMissingNutrients();
     }
 
     // Updates player capabilities on server so object IDs match those in NutrientList
@@ -78,6 +87,13 @@ public class DataImporter {
         return readConfigurationDirectory(JsonEffect.class, effectsDirectory);
     }
 
+    // Creates and parses foodHint json files into objects, returned as list
+    private static Optional<JsonFoodHint> loadJsonFoodHints() {
+        File foodHintFile = new File(Config.configDirectory, Tags.MODID + "/food_hint.json");
+        createConfigurationFile("assets/nutrition/configs", foodHintFile);
+        return readConfigurationFile(JsonFoodHint.class, foodHintFile);
+    }
+
     // Copies files from internal resources to external files.
     // Accepts an input resource path, output directory, and list of files
     private static void createConfigurationDirectory(String inputDirectory, File outputDirectory, List<String> files) {
@@ -96,6 +112,22 @@ public class DataImporter {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    // Copies file from internal resources to external file.
+    // Accepts an input resource path, output directory, and list of files
+    private static void createConfigurationFile(String inputDirectory, File outputFile) {
+        // Make no changes if file already exists
+        if (outputFile.exists())
+            return;
+
+        // Copy file
+        ClassLoader loader = Thread.currentThread().getContextClassLoader(); // Can access resources via class loader
+        try (InputStream inputStream = loader.getResourceAsStream(inputDirectory + "/" + outputFile.getName())) {
+            Files.copy(inputStream, outputFile.toPath()); // Create files from stream
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -119,5 +151,32 @@ public class DataImporter {
         }
 
         return jsonObjectList;
+    }
+
+    // Reads in JSON as objects.
+    // Accepts object to serialize into, and json file to read.
+    // Returns an optional of a JSON object.
+    private static <T> Optional<T> readConfigurationFile(Class<T> classImport, File configFile) {
+        if (FilenameUtils.isExtension(configFile.getName(), "json")) {
+            try {
+                JsonReader jsonReader = new JsonReader(new FileReader(configFile)); // Read in JSON
+                return Optional.of(gson.fromJson(jsonReader, classImport));
+            } catch (IOException | com.google.gson.JsonSyntaxException e) {
+                Log.fatal("The file " + configFile.getName() + " has invalid JSON and could not be loaded.");
+                throw new IllegalArgumentException("Unable to load " + configFile.getName() + ".  Is the JSON valid?",
+                        e);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    // Log all foods registered in-game without nutrients
+    private static void logMissingNutrients() {
+        for (Item item : Item.REGISTRY) {
+            ItemStack itemStack = new ItemStack(item);
+            if (NutritionUtil.isValidFood(itemStack) && NutritionUtil.calculateNutrition(itemStack, null).isEmpty())
+                Log.warn("Registered food without nutrients: " + item.getRegistryName());
+        }
     }
 }

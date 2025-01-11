@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import ca.wescook.nutrition.capabilities.CapabilityManager;
+import ca.wescook.nutrition.command.ChatCommand;
 import ca.wescook.nutrition.command.CommandEditNutrition;
 import ca.wescook.nutrition.events.EventEatFood;
 import ca.wescook.nutrition.events.EventPlayerDeath;
@@ -21,7 +22,6 @@ import ca.wescook.nutrition.gui.ModGuiHandler;
 import ca.wescook.nutrition.network.ModPacketHandler;
 import ca.wescook.nutrition.potions.ModPotions;
 import ca.wescook.nutrition.proxy.IProxy;
-import ca.wescook.nutrition.utility.ChatCommand;
 import ca.wescook.nutrition.utility.Config;
 import ca.wescook.nutrition.utility.DataImporter;
 

@@ -2,20 +2,26 @@ package ca.wescook.nutrition.utility;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Nullable;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.Loader;
 
+import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.effects.Effect;
 import ca.wescook.nutrition.effects.JsonEffect;
+import ca.wescook.nutrition.nutrients.FoodHint;
+import ca.wescook.nutrition.nutrients.JsonFoodHint;
+import ca.wescook.nutrition.nutrients.JsonFoodHint.FoodHintRaw;
 import ca.wescook.nutrition.nutrients.JsonNutrient;
 import ca.wescook.nutrition.nutrients.JsonNutrient.Food.ItemId;
 import ca.wescook.nutrition.nutrients.Nutrient;
 import ca.wescook.nutrition.nutrients.Nutrient.ScaledItemStack;
 import ca.wescook.nutrition.nutrients.NutrientList;
-import ca.wescook.nutrition.nutrients.NutrientUtils;
 
 public class DataParser {
 
@@ -65,10 +71,8 @@ public class DataParser {
             if (nutrientRaw.food.items != null) {
                 for (ItemId idScale : nutrientRaw.food.items) {
                     String name = idScale.id;
-                    int metadata = idScale.getMeta();
-                    Item item = Item.getByNameOrId(name);
-
-                    if (item == null) {
+                    ItemStack itemStack = getItemStack(name, idScale.getMeta());
+                    if (itemStack == null) {
                         // Item ID not found, issue warning and skip adding item
                         String modid = name.substring(0, name.indexOf(":"));
                         if (Config.logMissingFood && Loader.isModLoaded(modid))
@@ -76,8 +80,7 @@ public class DataParser {
                         continue;
                     }
 
-                    ItemStack itemStack = new ItemStack(item, 1, metadata);
-                    if (NutrientUtils.isValidFood(itemStack))
+                    if (NutritionUtil.isValidFood(itemStack))
                         nutrient.foodItems.add(new ScaledItemStack(itemStack, (float) idScale.scale));
                     else
                         Log.warn(name + " is not a valid food");
@@ -148,5 +151,47 @@ public class DataParser {
         }
 
         return effects;
+    }
+
+    // Accepts a list of raw JSON objects, which are returned as cleaned FoodHints
+    public static List<FoodHint> parseFoodHints(Optional<JsonFoodHint> jsonFoodHints) {
+        List<FoodHint> res = new ArrayList<>();
+
+        if (!jsonFoodHints.isPresent())
+            return res;
+
+        for (FoodHintRaw foodHintRaw : jsonFoodHints.get().hints) {
+
+            // Copying and cleaning data
+            FoodHint foodHint = new FoodHint();
+
+            // Food Item
+            String name = foodHintRaw.id;
+            ItemStack itemStack = getItemStack(name, foodHintRaw.getMeta());
+            if (itemStack == null) {
+                // Item ID not found, issue warning and skip adding item
+                String modid = name.substring(0, name.indexOf(":"));
+                if (Config.logMissingFood && Loader.isModLoaded(modid))
+                    Log.warn("Food with nutrients doesn't exist: " + name);
+                continue;
+            }
+            foodHint.itemStack = itemStack;
+            foodHint.isValidFood = foodHintRaw.isValidFood;
+            foodHint.healAmount = Math.max((float) foodHintRaw.healAmount, 0);
+            res.add(foodHint);
+        }
+
+        return res;
+    }
+
+    @Nullable
+    private static ItemStack getItemStack(String name, int metadata) {
+        Item item = Item.getByNameOrId(name);
+
+        if (item == null) {
+            return null;
+        }
+
+        return new ItemStack(item, 1, metadata);
     }
 }
