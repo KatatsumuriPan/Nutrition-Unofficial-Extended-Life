@@ -69,7 +69,7 @@ public class NutrientUtils {
         for (Nutrient nutrient : NutrientList.get()) { // All nutrients
             // Search foods
             for (ScaledItemStack listedFood : nutrient.foodItems) { // All foods in that category
-                if (listedFood.itemStack.isItemEqual(eatingFood)) {
+                if (listedFood.isMatch(eatingFood)) {
                     nutrientsFound.add(nutrient); // Add nutrient
                     continue foodSearch; // Skip rest of search in this nutrient, try others
                 }

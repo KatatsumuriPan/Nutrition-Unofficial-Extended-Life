@@ -52,7 +52,7 @@ public class NutritionUtilImpl {
     private static Float getNutritionValue(Nutrient nutrient, ItemStack itemStack, @Nullable EntityPlayer player) {
         // Search foods
         for (ScaledItemStack listedFood : nutrient.foodItems) {
-            if (!listedFood.itemStack.isItemEqual(itemStack))
+            if (!listedFood.isMatch(itemStack))
                 continue;
 
             float baseFoodValue = getBaseFoodValue(itemStack, player);

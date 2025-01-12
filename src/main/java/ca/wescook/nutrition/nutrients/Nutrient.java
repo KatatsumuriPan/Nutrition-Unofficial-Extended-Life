@@ -42,5 +42,9 @@ public class Nutrient implements INutrient {
             this.itemStack = itemStack;
             this.scale = scale;
         }
+
+        public boolean isMatch(ItemStack itemStack) {
+            return this.itemStack.isItemEqual(itemStack);
+        }
     }
 }

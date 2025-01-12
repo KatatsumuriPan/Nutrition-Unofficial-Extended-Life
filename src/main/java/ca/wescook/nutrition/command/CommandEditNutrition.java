@@ -83,7 +83,7 @@ public class CommandEditNutrition extends CommandBase {
                         case "add" -> {
                             Nutrient nutrient = getNutrient(args);
                             if (args.length == 2) {
-                                if (nutrient.foodItems.stream().anyMatch(s -> s.itemStack.isItemEqual(heldItem)))
+                                if (nutrient.foodItems.stream().anyMatch(s -> s.isMatch(heldItem)))
                                     throw new CommandException(
                                             args[1] + " is already added to " + heldItem.getItem().getRegistryName() +
                                                     "!");
@@ -93,8 +93,7 @@ public class CommandEditNutrition extends CommandBase {
                                         args[1] + " is added to " + heldItem.getItem().getRegistryName()));
                             } else {
                                 float scale = (float) parseDouble(args[2], 0);
-                                int index = Iterables.indexOf(nutrient.foodItems,
-                                        s -> s.itemStack.isItemEqual(heldItem));
+                                int index = Iterables.indexOf(nutrient.foodItems, s -> s.isMatch(heldItem));
                                 ScaledItemStack scaledItemStack = new ScaledItemStack(heldItem, scale);
                                 if (index >= 0) {
                                     nutrient.foodItems.set(index, scaledItemStack);
@@ -108,7 +107,7 @@ public class CommandEditNutrition extends CommandBase {
                         case "remove" -> {
                             Nutrient nutrient = getNutrient(args);
                             Optional<ScaledItemStack> first = nutrient.foodItems.stream()
-                                    .filter(s -> s.itemStack.isItemEqual(heldItem)).findFirst();
+                                    .filter(s -> s.isMatch(heldItem)).findFirst();
                             if (!first.isPresent())
                                 throw new CommandException(
                                         heldItem.getItem().getRegistryName() + "doesn't have " + args[1]);
