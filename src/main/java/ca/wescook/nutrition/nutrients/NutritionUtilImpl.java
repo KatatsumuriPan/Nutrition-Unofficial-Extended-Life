@@ -15,7 +15,6 @@ import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.oredict.OreDictionary;
 
 import com.google.common.primitives.Floats;
 
@@ -23,7 +22,6 @@ import ca.wescook.nutrition.api.INutrient;
 import ca.wescook.nutrition.api.INutritionFood;
 import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.capabilities.INutrientManager;
-import ca.wescook.nutrition.nutrients.Nutrient.ScaledItemStack;
 import ca.wescook.nutrition.proxy.ClientProxy;
 import ca.wescook.nutrition.utility.Config;
 
@@ -50,31 +48,12 @@ public class NutritionUtilImpl {
 
     @Nullable
     private static Float getNutritionValue(Nutrient nutrient, ItemStack itemStack, @Nullable EntityPlayer player) {
-        // Search foods
-        for (ScaledItemStack listedFood : nutrient.foodItems) {
-            if (!listedFood.isMatch(itemStack))
-                continue;
-
-            float baseFoodValue = getBaseFoodValue(itemStack, player);
-            float adjustedFoodValue = adjustFoodValue(baseFoodValue);
-            // Remains are skipped.
-            // (Only the first element is applied if it has duplicated ones.)
-            return adjustedFoodValue * listedFood.scale;
-        }
-
-        // Search ore dictionary
-        for (String listedOreDict : nutrient.foodOreDict) {
-            // Example
-            // - listAllmilk
-            for (ItemStack itemStack1 : OreDictionary.getOres(listedOreDict)) {
-                if (!itemStack1.isItemEqual(itemStack))
-                    continue;
-
-                float baseFoodValue = getBaseFoodValue(itemStack, player);
-                return adjustFoodValue(baseFoodValue);
-            }
-        }
-        return null;
+        Float nutrientScale = nutrient.getNutrientScale(itemStack);
+        if (nutrientScale == null)
+            return null;
+        float baseFoodValue = getBaseFoodValue(itemStack, player);
+        float adjustedFoodValue = adjustFoodValue(baseFoodValue);
+        return adjustedFoodValue * nutrientScale;
     }
 
     private static float getBaseFoodValue(ItemStack itemStack, @Nullable EntityPlayer player) {

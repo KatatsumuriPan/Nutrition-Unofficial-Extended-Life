@@ -81,7 +81,7 @@ public class DataParser {
                     }
 
                     if (NutritionUtil.isValidFood(itemStack))
-                        nutrient.foodItems.add(new ScaledItemStack(itemStack, (float) idScale.scale));
+                        nutrient.addScaledItemStack(new ScaledItemStack(itemStack, (float) idScale.scale));
                     else
                         Log.warn(name + " is not a valid food");
                 }

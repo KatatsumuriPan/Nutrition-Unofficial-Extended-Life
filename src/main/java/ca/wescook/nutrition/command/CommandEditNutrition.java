@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 import ca.wescook.nutrition.Tags;
@@ -83,36 +81,31 @@ public class CommandEditNutrition extends CommandBase {
                         case "add" -> {
                             Nutrient nutrient = getNutrient(args);
                             if (args.length == 2) {
-                                if (nutrient.foodItems.stream().anyMatch(s -> s.isMatch(heldItem)))
+                                if (nutrient.getScaledItemStack(heldItem) != null)
                                     throw new CommandException(
                                             args[1] + " is already added to " + heldItem.getItem().getRegistryName() +
                                                     "!");
-                                nutrient.foodItems.add(new ScaledItemStack(heldItem, 1));
+                                nutrient.addScaledItemStack(new ScaledItemStack(heldItem, 1));
                                 DataUpdater.add(nutrient, new ScaledItemStack(heldItem, 1));
                                 sender.sendMessage(new TextComponentString(
                                         args[1] + " is added to " + heldItem.getItem().getRegistryName()));
                             } else {
                                 float scale = (float) parseDouble(args[2], 0);
-                                int index = Iterables.indexOf(nutrient.foodItems, s -> s.isMatch(heldItem));
                                 ScaledItemStack scaledItemStack = new ScaledItemStack(heldItem, scale);
-                                if (index >= 0) {
-                                    nutrient.foodItems.set(index, scaledItemStack);
-                                    DataUpdater.edit(nutrient, scaledItemStack);
-                                } else {
-                                    nutrient.foodItems.add(scaledItemStack);
+                                if (nutrient.addOrReplaceScaledItemStack(scaledItemStack)) {
                                     DataUpdater.add(nutrient, scaledItemStack);
+                                } else {
+                                    DataUpdater.edit(nutrient, scaledItemStack);
                                 }
                             }
                         }
                         case "remove" -> {
                             Nutrient nutrient = getNutrient(args);
-                            Optional<ScaledItemStack> first = nutrient.foodItems.stream()
-                                    .filter(s -> s.isMatch(heldItem)).findFirst();
-                            if (!first.isPresent())
+                            ScaledItemStack removed = nutrient.removeScaledItemStack(heldItem);
+                            if (removed == null)
                                 throw new CommandException(
                                         heldItem.getItem().getRegistryName() + "doesn't have " + args[1]);
-                            nutrient.foodItems.remove(first.get());
-                            DataUpdater.remove(nutrient, first.get());
+                            DataUpdater.remove(nutrient, removed);
                             sender.sendMessage(new TextComponentString(
                                     args[1] + " is removed from " + heldItem.getItem().getRegistryName()));
                         }
