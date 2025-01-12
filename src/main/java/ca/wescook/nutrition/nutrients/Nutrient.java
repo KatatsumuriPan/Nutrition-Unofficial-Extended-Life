@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 
 import ca.wescook.nutrition.api.INutrient;
 
@@ -31,6 +32,26 @@ public class Nutrient implements INutrient {
     @Override
     public int getColor() {
         return color;
+    }
+
+    @Override
+    public boolean isContainedIn(ItemStack itemStack) {
+        // Search foods
+        for (ScaledItemStack listedFood : foodItems) {
+            if (listedFood.isMatch(itemStack))
+                return true;
+        }
+
+        // Search ore dictionary
+        for (String listedOreDict : foodOreDict) {
+            // Example
+            // - listAllmilk
+            for (ItemStack itemStack1 : OreDictionary.getOres(listedOreDict)) {
+                if (itemStack1.isItemEqual(itemStack))
+                    return true;
+            }
+        }
+        return false;
     }
 
     public static class ScaledItemStack {

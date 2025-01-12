@@ -13,4 +13,6 @@ public interface INutrient {
     ItemStack getIcon();
 
     int getColor();
+
+    boolean isContainedIn(ItemStack itemStack);
 }
