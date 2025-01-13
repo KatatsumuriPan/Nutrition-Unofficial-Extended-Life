@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import ca.wescook.nutrition.capabilities.CapabilityManager;
 import ca.wescook.nutrition.command.ChatCommand;
 import ca.wescook.nutrition.command.CommandEditNutrition;
+import ca.wescook.nutrition.compat.CompatManager;
 import ca.wescook.nutrition.events.EventEatFood;
 import ca.wescook.nutrition.events.EventPlayerDeath;
 import ca.wescook.nutrition.events.EventPlayerJoinWorld;
@@ -67,6 +68,8 @@ public class Nutrition {
         NetworkRegistry.INSTANCE.registerGuiHandler(Nutrition.instance, new ModGuiHandler()); // Register GUI handler
 
         Nutrition.proxy.init(event);
+
+        CompatManager.initCompat();
     }
 
     @EventHandler
