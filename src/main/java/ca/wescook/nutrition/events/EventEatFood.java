@@ -92,6 +92,11 @@ public class EventEatFood {
             // If config allows, mark food as edible
             if (Config.allowOverEating)
                 iNutritionFood.setAlwaysEdible(itemStack, player);
+            // Apply nutrients
+            if (iNutritionFood.getNutrientApplicationPhase(itemStack) == NutrientApplicationPhase.ON_RIGHT_CLICK) {
+                NutritionUtil.addNutrientsToPlayer(player, itemStack);
+                reapplyEffectsFromMilk(player, itemStack);
+            }
         } else if (itemStack.getItem() instanceof ItemFood itemFood) {
             // If config allows, mark food as edible
             if (Config.allowOverEating)
@@ -114,9 +119,17 @@ public class EventEatFood {
         itemStack.setCount(stackSize); // Restore original stack size
 
         // Apply actions to item
-        EntityPlayer player = (EntityPlayer) event.getEntity();
-        NutritionUtil.addNutrientsToPlayer(player, dummyStack);
-        reapplyEffectsFromMilk(player, dummyStack);
+        boolean applyNow = true;
+        INutritionFood iNutritionFood = toINutritionFood(dummyStack);
+        if (iNutritionFood != null) {
+            if (iNutritionFood.getNutrientApplicationPhase(itemStack) != NutrientApplicationPhase.FINISH_USING)
+                applyNow = false;
+        }
+        if (applyNow) {
+            EntityPlayer player = (EntityPlayer) event.getEntity();
+            NutritionUtil.addNutrientsToPlayer(player, dummyStack);
+            reapplyEffectsFromMilk(player, dummyStack);
+        }
     }
 
     // If milk clears effects, reapply immediately

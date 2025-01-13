@@ -13,7 +13,7 @@ public interface INutritionFood {
 
     /**
      * Get healing level of the food.
-     * 
+     *
      * @param itemStack Stack of eating item.
      *                  You can get meta and NBT from it.
      * @param player    Eating player.
@@ -24,10 +24,21 @@ public interface INutritionFood {
     /**
      * Force the food always-edible.
      * The food will be edible even if the player don't need to eat.
-     * 
+     *
      * @param itemStack Stack of eating item.
-     *                  * You can get meta and NBT from it.
+     *                  You can get meta and NBT from it.
      * @param player    Player that will eat this.
      */
     void setAlwaysEdible(ItemStack itemStack, @Nullable EntityPlayer player);
+
+    /**
+     * Return {@link NutrientApplicationPhase} of the item
+     * 
+     * @param itemStack Stack of eating item.
+     *                  You can get meta and NBT from it.
+     * @return NutrientApplicationPhase
+     */
+    default NutrientApplicationPhase getNutrientApplicationPhase(ItemStack itemStack) {
+        return NutrientApplicationPhase.FINISH_USING;
+    }
 }
