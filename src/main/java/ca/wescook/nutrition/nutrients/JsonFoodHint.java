@@ -39,17 +39,17 @@ public class JsonFoodHint {
 
                 FoodHintRaw foodHintRaw = new FoodHintRaw();
                 // Examples
-                // - {"id": "minecraft:carrot", "healAmount": 2}
-                // - {"id": "minecraft:fish", "meta": 1, "healAmount": 100}
-                // - {"id": "minecraft:fish", "meta": 3, "isValidFood": false}
+                // - {"id": "minecraft:carrot", "heal_amount": 2}
+                // - {"id": "minecraft:fish", "meta": 1, "heal_amount": 100}
+                // - {"id": "minecraft:fish", "meta": 3, "is_valid_food": false}
                 reader.beginObject();
                 while (reader.hasNext()) {
                     String key = reader.nextName();
                     switch (key) {
                         case "id" -> foodHintRaw.id = reader.nextString();
                         case "meta" -> foodHintRaw.meta = reader.nextInt();
-                        case "isValidFood" -> foodHintRaw.isValidFood = reader.nextBoolean();
-                        case "healAmount" -> foodHintRaw.healAmount = reader.nextDouble();
+                        case "is_valid_food", "isValidFood" -> foodHintRaw.isValidFood = reader.nextBoolean();
+                        case "heal_amount", "healAmount" -> foodHintRaw.healAmount = reader.nextDouble();
                         default -> throw new JsonSyntaxException("Unknown key:" + key);
                     }
                 }
@@ -70,9 +70,9 @@ public class JsonFoodHint {
                 if (value.meta != null)
                     writer.name("meta").value(value.meta);
                 if (!value.isValidFood)
-                    writer.name("isValidFood").value(false);
+                    writer.name("is_valid_food").value(false);
                 if (value.healAmount != 1)
-                    writer.name("healAmount").value(value.healAmount);
+                    writer.name("heal_amount").value(value.healAmount);
                 writer.endObject();
             }
         }
