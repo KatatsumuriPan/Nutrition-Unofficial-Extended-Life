@@ -2,6 +2,8 @@ package ca.wescook.nutrition.events;
 
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.BlockCake;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,10 +19,12 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import ca.wescook.nutrition.api.INutritionFood;
+import ca.wescook.nutrition.api.NutrientApplicationPhase;
 import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.capabilities.INutrientManager;
 import ca.wescook.nutrition.effects.EffectsManager;
 import ca.wescook.nutrition.nutrients.Nutrient;
+import ca.wescook.nutrition.nutrients.NutritionAdapterManager;
 import ca.wescook.nutrition.nutrients.NutritionUtilImpl;
 import ca.wescook.nutrition.proxy.ClientProxy;
 import ca.wescook.nutrition.utility.Config;
@@ -83,14 +87,15 @@ public class EventEatFood {
             return;
 
         // Is item food?
-        Item item = itemStack.getItem();
-        if (item instanceof INutritionFood iNutritionFood) {
-            if (Config.allowOverEating)
-                iNutritionFood.setAlwaysEdible(itemStack, player);
-        } else if (item instanceof ItemFood) {
+        INutritionFood iNutritionFood = toINutritionFood(itemStack);
+        if (iNutritionFood != null) {
             // If config allows, mark food as edible
             if (Config.allowOverEating)
-                ((ItemFood) item).setAlwaysEdible();
+                iNutritionFood.setAlwaysEdible(itemStack, player);
+        } else if (itemStack.getItem() instanceof ItemFood itemFood) {
+            // If config allows, mark food as edible
+            if (Config.allowOverEating)
+                itemFood.setAlwaysEdible();
         }
     }
 
@@ -126,5 +131,16 @@ public class EventEatFood {
 
         // Reapply effects
         EffectsManager.reapplyEffects(player);
+    }
+
+    // Convert to INutritionFood
+    @Nullable
+    private static INutritionFood toINutritionFood(ItemStack itemStack) {
+        INutritionFood iNutritionFood = NutritionAdapterManager.apply(itemStack);
+        if (iNutritionFood != null)
+            return iNutritionFood;
+        if (itemStack.getItem() instanceof INutritionFood)
+            return (INutritionFood) itemStack.getItem();
+        return null;
     }
 }
