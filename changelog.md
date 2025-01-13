@@ -7,6 +7,8 @@
 - Add new API interface: INutrition.
 - Add new API utility class: NutritionUtil.
 - Add new API : INutritionFoodAdapter.
+- New support: ExtraPlanets
+  - `extraplanets:canned_food`
 
 [v4.13.1](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.13.1) - 2024-12-06
 - Fix backward compatibility. (New feature nutrition-scaling is not available through the old APIs.)
