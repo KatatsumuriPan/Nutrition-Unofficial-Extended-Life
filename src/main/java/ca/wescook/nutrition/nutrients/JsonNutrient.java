@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -32,7 +34,7 @@ public class JsonNutrient {
         public static class ItemId {
 
             public String id;
-            public Integer meta;
+            public @Nullable Integer meta = null;
             public double scale = 1;
 
             public int getMeta() {

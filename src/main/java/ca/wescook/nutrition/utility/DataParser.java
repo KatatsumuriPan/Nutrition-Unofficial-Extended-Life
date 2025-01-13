@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.fml.common.Loader;
 
+import ca.wescook.nutrition.api.ItemStackCompareType;
 import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.effects.Effect;
 import ca.wescook.nutrition.effects.JsonEffect;
@@ -81,7 +82,9 @@ public class DataParser {
                     }
 
                     if (NutritionUtil.isValidFood(itemStack))
-                        nutrient.addScaledItemStack(new ScaledItemStack(itemStack, (float) idScale.scale));
+                        nutrient.addScaledItemStack(
+                                new ScaledItemStack(itemStack, (float) idScale.scale, idScale.meta == null ?
+                                        ItemStackCompareType.DEFAULT : ItemStackCompareType.META_SENSITIVE));
                     else
                         Log.warn(name + " is not a valid food");
                 }

@@ -11,6 +11,8 @@ import net.minecraftforge.oredict.OreDictionary;
 import com.google.common.collect.Iterables;
 
 import ca.wescook.nutrition.api.INutrient;
+import ca.wescook.nutrition.api.ItemStackCompareType;
+import ca.wescook.nutrition.utility.Log;
 
 // Nutrient object represents a type of food group
 public class Nutrient implements INutrient {
@@ -85,7 +87,7 @@ public class Nutrient implements INutrient {
 
     /**
      * Return the first ScaledItemStack that matches to the itemStack.
-     * 
+     *
      * @param itemStack Food item
      * @return ScaledItemStack (nullable).
      */
@@ -100,7 +102,7 @@ public class Nutrient implements INutrient {
 
     /**
      * Add the food item to the nutrient.
-     * 
+     *
      * @param scaledItemStack Food item
      */
     public void addScaledItemStack(ScaledItemStack scaledItemStack) {
@@ -109,7 +111,7 @@ public class Nutrient implements INutrient {
 
     /**
      * Add or replace the food item to the nutrient.
-     * 
+     *
      * @param scaledItemStack Food item
      * @return True: added, false: replaced
      */
@@ -126,7 +128,7 @@ public class Nutrient implements INutrient {
 
     /**
      * Remove the food item to the nutrient.
-     * 
+     *
      * @param itemStack Food item
      * @return True: added, false: replaced
      */
@@ -146,14 +148,26 @@ public class Nutrient implements INutrient {
 
         public final ItemStack itemStack;
         public final float scale;
+        public final ItemStackCompareType compareType;
 
         public ScaledItemStack(ItemStack itemStack, float scale) {
+            this(itemStack, scale, ItemStackCompareType.META_SENSITIVE);
+        }
+
+        public ScaledItemStack(ItemStack itemStack, float scale, ItemStackCompareType compareType) {
             this.itemStack = itemStack;
             this.scale = scale;
+            this.compareType = compareType;
         }
 
         public boolean isMatch(ItemStack itemStack) {
-            return this.itemStack.isItemEqual(itemStack);
+            return switch (compareType) {
+                case DEFAULT -> !itemStack.isEmpty() && this.itemStack.getItem() == itemStack.getItem();
+                case META_SENSITIVE -> this.itemStack.isItemEqual(itemStack);
+                case ONLY_NBT_SENSITIVE -> ItemStack.areItemStackTagsEqual(this.itemStack, itemStack);
+                case ALL_SENSITIVE -> this.itemStack.isItemEqual(itemStack) &&
+                        ItemStack.areItemStackTagsEqual(this.itemStack, itemStack);
+            };
         }
     }
 }
