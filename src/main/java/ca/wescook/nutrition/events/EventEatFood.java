@@ -93,15 +93,25 @@ public class EventEatFood {
             // If config allows, mark food as edible
             if (Config.allowOverEating)
                 iNutritionFood.setAlwaysEdible(itemStack, player);
-            // Apply nutrients
-            if (iNutritionFood.getNutrientApplicationPhase(itemStack) == NutrientApplicationPhase.ON_RIGHT_CLICK) {
-                NutritionUtil.addNutrientsToPlayer(player, itemStack);
-                reapplyEffectsFromMilk(player, itemStack);
-            }
         } else if (itemStack.getItem() instanceof ItemFood itemFood) {
             // If config allows, mark food as edible
             if (Config.allowOverEating)
                 itemFood.setAlwaysEdible();
+        }
+
+        // Apply nutrients
+        boolean applyNow = false;
+        NutrientApplicationPhase nutrientApplicationPhase = FoodHintList.getNutrientApplicationPhase(itemStack);
+        if (nutrientApplicationPhase != null) {
+            if (nutrientApplicationPhase == NutrientApplicationPhase.ON_RIGHT_CLICK)
+                applyNow = true;
+        } else if (iNutritionFood != null) {
+            if (iNutritionFood.getNutrientApplicationPhase(itemStack) == NutrientApplicationPhase.ON_RIGHT_CLICK)
+                applyNow = true;
+        }
+        if (applyNow) {
+            NutritionUtil.addNutrientsToPlayer(player, itemStack);
+            reapplyEffectsFromMilk(player, itemStack);
         }
     }
 
@@ -117,10 +127,16 @@ public class EventEatFood {
 
         // Apply actions to item
         boolean applyNow = true;
-        INutritionFood iNutritionFood = toINutritionFood(itemStack);
-        if (iNutritionFood != null) {
-            if (iNutritionFood.getNutrientApplicationPhase(itemStack) != NutrientApplicationPhase.FINISH_USING)
+        NutrientApplicationPhase nutrientApplicationPhase = FoodHintList.getNutrientApplicationPhase(itemStack);
+        if (nutrientApplicationPhase != null) {
+            if (nutrientApplicationPhase != NutrientApplicationPhase.FINISH_USING)
                 applyNow = false;
+        } else {
+            INutritionFood iNutritionFood = toINutritionFood(itemStack);
+            if (iNutritionFood != null) {
+                if (iNutritionFood.getNutrientApplicationPhase(itemStack) != NutrientApplicationPhase.FINISH_USING)
+                    applyNow = false;
+            }
         }
         if (applyNow) {
             NutritionUtil.addNutrientsToPlayer(player, itemStack);
