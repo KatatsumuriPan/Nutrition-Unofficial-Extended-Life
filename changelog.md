@@ -2,6 +2,17 @@
 
 ## Nutrition Unofficial Extended Life
 
+[v4.15.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.15.0) - 2025-01/13
+- Add new API : ItemStackCompareType
+- Add new API : NutrientApplicationPhase
+- Add new API : NutritionUtil.getNutrientByName
+- Add new API : INutrient.isContainedIn
+- Add new API : INutrient.registerFoodItem
+- Add new API : INutrient.registerFoodItem
+- New support: Industrial Craft (IC2)
+  - `ic2:filled_tin_can`
+- Fix bug that `setAlwaysEdible` of `INutritionFood` created by `INutritionFoodAdapter` is not called.
+
 [v4.14.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.14.0) - 2025-01/11
 - Add new config file: food_hint.json.
 - Add new API interface: INutrition.
