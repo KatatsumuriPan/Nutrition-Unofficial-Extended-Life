@@ -18,6 +18,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import ca.wescook.nutrition.Tags;
+import ca.wescook.nutrition.api.ItemStackCompareType;
 import ca.wescook.nutrition.nutrients.JsonNutrient;
 import ca.wescook.nutrition.nutrients.JsonNutrient.Food.ItemId;
 import ca.wescook.nutrition.nutrients.Nutrient;
@@ -37,7 +38,8 @@ public class DataUpdater {
             {
                 ItemId itemId = new ItemId();
                 itemId.id = scaledItemStack.itemStack.getItem().getRegistryName().toString();
-                itemId.meta = scaledItemStack.itemStack.getMetadata();
+                if (scaledItemStack.compareType != ItemStackCompareType.DEFAULT)
+                    itemId.meta = scaledItemStack.itemStack.getMetadata();
                 itemId.scale = scaledItemStack.scale;
                 jsonNutrient.food.items.add(itemId);
                 Collections.sort(jsonNutrient.food.items, (a, b) -> CompareUtil.compareTo(a.id, b.id));

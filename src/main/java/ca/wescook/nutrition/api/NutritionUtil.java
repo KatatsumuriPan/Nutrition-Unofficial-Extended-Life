@@ -61,6 +61,16 @@ public class NutritionUtil {
     }
 
     /**
+     * Return nutrient by name (null if not found).
+     *
+     * @return INutrient (nullable).
+     */
+    @Nullable
+    public static INutrient getNutrientByName(String name) {
+        return NutrientList.getByName(name);
+    }
+
+    /**
      * Get nutrient value of the player.
      *
      * @param player   Target player.

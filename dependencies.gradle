@@ -23,4 +23,5 @@
  */
 dependencies {
 
+    implementation rfg.deobf("curse.maven:industrial-craft-242638:3838713")
 }

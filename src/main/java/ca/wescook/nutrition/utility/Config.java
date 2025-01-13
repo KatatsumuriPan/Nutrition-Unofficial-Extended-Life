@@ -4,6 +4,8 @@ import java.io.File;
 
 import net.minecraftforge.common.config.Configuration;
 
+import ca.wescook.nutrition.compat.CompatManager;
+
 public class Config {
 
     // Config path - populated in FMLPreInitializationEvent
@@ -91,6 +93,9 @@ public class Config {
                 "Log foods which cannot be found but are still listed in nutrients file.");
         logMissingNutrients = configFile.getBoolean("LogMissingNutrients", CATEGORY_LOGGING, false,
                 "Log foods which have been found but do not have any associated nutrients.");
+
+        // Compat
+        CompatManager.registerConfigs(configFile);
 
         // Update file
         if (configFile.hasChanged())

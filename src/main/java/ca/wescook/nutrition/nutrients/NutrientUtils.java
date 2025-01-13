@@ -13,11 +13,9 @@ import net.minecraft.item.ItemBlockSpecial;
 import net.minecraft.item.ItemBucketMilk;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 
 import ca.wescook.nutrition.api.INutritionFood;
 import ca.wescook.nutrition.api.NutritionUtil;
-import ca.wescook.nutrition.nutrients.Nutrient.ScaledItemStack;
 import ca.wescook.nutrition.utility.Config;
 import ca.wescook.nutrition.utility.Log;
 
@@ -65,26 +63,9 @@ public class NutrientUtils {
         List<Nutrient> nutrientsFound = new ArrayList<>();
 
         // Loop through nutrients to look for food
-        foodSearch:
         for (Nutrient nutrient : NutrientList.get()) { // All nutrients
-            // Search foods
-            for (ScaledItemStack listedFood : nutrient.foodItems) { // All foods in that category
-                if (listedFood.itemStack.isItemEqual(eatingFood)) {
-                    nutrientsFound.add(nutrient); // Add nutrient
-                    continue foodSearch; // Skip rest of search in this nutrient, try others
-                }
-            }
-
-            // Search ore dictionary
-            for (String listedOreDict : nutrient.foodOreDict) { // All ore dicts in that nutrient
-                for (ItemStack itemStack : OreDictionary.getOres(listedOreDict)) { // All items that match that oredict
-                    // (eg. listAllmilk)
-                    if (itemStack.isItemEqual(eatingFood)) { // Our food matches oredict
-                        nutrientsFound.add(nutrient); // Add nutrient
-                        continue foodSearch; // Skip rest of search in this nutrient, try others
-                    }
-                }
-            }
+            if (nutrient.isContainedIn(eatingFood))
+                nutrientsFound.add(nutrient);
         }
 
         return nutrientsFound;
