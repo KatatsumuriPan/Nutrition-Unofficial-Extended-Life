@@ -36,4 +36,15 @@ public interface INutrient {
      * @return Whether the nutrient is contained in the itemStack
      */
     boolean isContainedIn(ItemStack itemStack);
+
+    /**
+     * Register food itemStack to the nutrient.
+     * To make the item meta-sensitive, call {@link INutrientItemEntry#setCompareType(ItemStackCompareType)} with
+     * {@link ItemStackCompareType#META_SENSITIVE}.
+     * Note that all fields of the argument itemEntry will be copied in this, so you have to call the setters of
+     * {@link INutrientItemEntry} before call this.
+     *
+     * @param itemEntry Food itemStack (and some options) to add
+     */
+    void registerFoodItem(INutrientItemEntry itemEntry);
 }

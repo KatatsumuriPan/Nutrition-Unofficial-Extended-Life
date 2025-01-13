@@ -11,6 +11,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import com.google.common.collect.Iterables;
 
 import ca.wescook.nutrition.api.INutrient;
+import ca.wescook.nutrition.api.INutrientItemEntry;
 import ca.wescook.nutrition.api.ItemStackCompareType;
 import ca.wescook.nutrition.utility.Log;
 
@@ -58,6 +59,14 @@ public class Nutrient implements INutrient {
             }
         }
         return false;
+    }
+
+    @Override
+    public void registerFoodItem(INutrientItemEntry itemEntry) {
+        NutrientItemEntry impl = (NutrientItemEntry) itemEntry;
+        if (!addOrReplaceScaledItemStack(
+                new ScaledItemStack(impl.itemStack, impl.scale, impl.compareType)))
+            Log.warn(impl.itemStack.getDisplayName() + " is duplicated in " + getName());
     }
 
     @Nullable
