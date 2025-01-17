@@ -2,7 +2,7 @@
 
 ## Nutrition Unofficial Extended Life
 
-[v4.15.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.15.0) - 2025-01/13
+[v4.15.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.15.0) - 2025-01-13
 - Add new API : ItemStackCompareType
 - Add new API : NutrientApplicationPhase
 - Add new API : NutritionUtil.getNutrientByName
@@ -13,7 +13,7 @@
   - `ic2:filled_tin_can`
 - Fix bug that `setAlwaysEdible` of `INutritionFood` created by `INutritionFoodAdapter` is not called.
 
-[v4.14.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.14.0) - 2025-01/11
+[v4.14.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.14.0) - 2025-01-11
 - Add new config file: food_hint.json.
 - Add new API interface: INutrition.
 - Add new API utility class: NutritionUtil.
