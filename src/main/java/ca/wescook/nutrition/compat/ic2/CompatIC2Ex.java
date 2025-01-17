@@ -25,7 +25,7 @@ public class CompatIC2 {
 
         @Override
         public boolean canApply(ItemStack itemStack) {
-            return itemStack.getItem() == ItemName.filled_tin_can.getInstance();
+            return ItemStack.areItemsEqual(itemStack, IC2Items.getItem("filled_tin_can"));
         }
 
         @Override
@@ -43,7 +43,7 @@ public class CompatIC2 {
             public int getHealAmount(ItemStack itemStack, @Nullable EntityPlayer player) {
                 if (player == null)
                     return 1;
-                return Math.min(StackUtil.getSize(itemStack), 20 - player.getFoodStats().getFoodLevel());
+                return Math.min(itemStack.getCount(), 20 - player.getFoodStats().getFoodLevel());
             }
 
             @Override
