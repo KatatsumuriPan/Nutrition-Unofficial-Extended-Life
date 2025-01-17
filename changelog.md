@@ -2,6 +2,11 @@
 
 ## Nutrition Unofficial Extended Life
 
+[v4.16.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.16.0) - 2025-01-17
+- Fix crashing bug with IC2 Classic.
+- Add new config option(food_hint.json): nutrient_application_phase
+- Change food_hint.json keys to snake_case.
+
 [v4.15.0](https://github.com/KatatsumuriPan/Nutrition-Unofficial-Extended-Life/releases/tag/v4.15.0) - 2025-01-13
 - Add new API : ItemStackCompareType
 - Add new API : NutrientApplicationPhase
