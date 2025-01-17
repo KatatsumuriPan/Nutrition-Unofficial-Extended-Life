@@ -2,7 +2,7 @@ package ca.wescook.nutrition.compat;
 
 import net.minecraftforge.common.config.Configuration;
 
-import ca.wescook.nutrition.compat.ic2.CompatIC2;
+import ca.wescook.nutrition.compat.ic2.CompatIC2Ex;
 
 public class CompatManager {
 
@@ -17,6 +17,6 @@ public class CompatManager {
 
     public static void initCompat() {
         if (ic2)
-            CompatIC2.init();
+            CompatIC2Ex.init();
     }
 }

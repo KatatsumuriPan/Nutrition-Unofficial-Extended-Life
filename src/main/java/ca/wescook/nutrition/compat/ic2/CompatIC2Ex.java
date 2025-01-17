@@ -10,13 +10,14 @@ import ca.wescook.nutrition.api.INutritionFood;
 import ca.wescook.nutrition.api.INutritionFoodAdapter;
 import ca.wescook.nutrition.api.NutrientApplicationPhase;
 import ca.wescook.nutrition.api.NutritionUtil;
-import ic2.core.ref.ItemName;
-import ic2.core.util.StackUtil;
+import ic2.api.item.IC2Items;
 
-public class CompatIC2 {
+public class CompatIC2Ex {
 
     public static void init() {
         if (!Loader.isModLoaded("ic2"))
+            return;
+        if (!Loader.instance().getIndexedModList().get("ic2").getVersion().contains("ex"))
             return;
         NutritionUtil.register(new Adapter());
     }
