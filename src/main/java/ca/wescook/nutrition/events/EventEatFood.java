@@ -23,6 +23,7 @@ import ca.wescook.nutrition.api.NutrientApplicationPhase;
 import ca.wescook.nutrition.api.NutritionUtil;
 import ca.wescook.nutrition.capabilities.INutrientManager;
 import ca.wescook.nutrition.effects.EffectsManager;
+import ca.wescook.nutrition.nutrients.FoodHintList;
 import ca.wescook.nutrition.nutrients.Nutrient;
 import ca.wescook.nutrition.nutrients.NutritionAdapterManager;
 import ca.wescook.nutrition.nutrients.NutritionUtilImpl;
@@ -92,15 +93,25 @@ public class EventEatFood {
             // If config allows, mark food as edible
             if (Config.allowOverEating)
                 iNutritionFood.setAlwaysEdible(itemStack, player);
-            // Apply nutrients
-            if (iNutritionFood.getNutrientApplicationPhase(itemStack) == NutrientApplicationPhase.ON_RIGHT_CLICK) {
-                NutritionUtil.addNutrientsToPlayer(player, itemStack);
-                reapplyEffectsFromMilk(player, itemStack);
-            }
         } else if (itemStack.getItem() instanceof ItemFood itemFood) {
             // If config allows, mark food as edible
             if (Config.allowOverEating)
                 itemFood.setAlwaysEdible();
+        }
+
+        // Apply nutrients
+        boolean applyNow = false;
+        NutrientApplicationPhase nutrientApplicationPhase = FoodHintList.getNutrientApplicationPhase(itemStack);
+        if (nutrientApplicationPhase != null) {
+            if (nutrientApplicationPhase == NutrientApplicationPhase.ON_RIGHT_CLICK)
+                applyNow = true;
+        } else if (iNutritionFood != null) {
+            if (iNutritionFood.getNutrientApplicationPhase(itemStack) == NutrientApplicationPhase.ON_RIGHT_CLICK)
+                applyNow = true;
+        }
+        if (applyNow) {
+            NutritionUtil.addNutrientsToPlayer(player, itemStack);
+            reapplyEffectsFromMilk(player, itemStack);
         }
     }
 
@@ -108,27 +119,28 @@ public class EventEatFood {
     @SubscribeEvent
     public void finishUsingItem(LivingEntityUseItemEvent.Finish event) {
         // Only check against players
-        if (!(event.getEntity() instanceof EntityPlayer))
+        if (!(event.getEntity() instanceof EntityPlayer player))
             return;
 
         // Get ItemStack of eaten food
         ItemStack itemStack = event.getItem();
-        int stackSize = itemStack.getCount();
-        itemStack.setCount(1); // Temporarily setting stack size to 1 so .copy works for stack sizes of 0
-        ItemStack dummyStack = itemStack.copy(); // Create dummy copy to not affect original item
-        itemStack.setCount(stackSize); // Restore original stack size
 
         // Apply actions to item
         boolean applyNow = true;
-        INutritionFood iNutritionFood = toINutritionFood(dummyStack);
-        if (iNutritionFood != null) {
-            if (iNutritionFood.getNutrientApplicationPhase(itemStack) != NutrientApplicationPhase.FINISH_USING)
+        NutrientApplicationPhase nutrientApplicationPhase = FoodHintList.getNutrientApplicationPhase(itemStack);
+        if (nutrientApplicationPhase != null) {
+            if (nutrientApplicationPhase != NutrientApplicationPhase.FINISH_USING)
                 applyNow = false;
+        } else {
+            INutritionFood iNutritionFood = toINutritionFood(itemStack);
+            if (iNutritionFood != null) {
+                if (iNutritionFood.getNutrientApplicationPhase(itemStack) != NutrientApplicationPhase.FINISH_USING)
+                    applyNow = false;
+            }
         }
         if (applyNow) {
-            EntityPlayer player = (EntityPlayer) event.getEntity();
-            NutritionUtil.addNutrientsToPlayer(player, dummyStack);
-            reapplyEffectsFromMilk(player, dummyStack);
+            NutritionUtil.addNutrientsToPlayer(player, itemStack);
+            reapplyEffectsFromMilk(player, itemStack);
         }
     }
 

@@ -2,6 +2,8 @@ package ca.wescook.nutrition.nutrients;
 
 import net.minecraft.item.ItemStack;
 
+import ca.wescook.nutrition.api.NutrientApplicationPhase;
+
 // Holds food hints (isValidFood, healAmount) for nutrition calculation.
 public class FoodHint {
 
@@ -10,6 +12,7 @@ public class FoodHint {
     public float healAmount;   // Healing hunger amount.
                                // This takes precedence over the actual healAmount.
                                // (This is only used for the nutrition calculation, not for actual hunger recovery.)
+    public NutrientApplicationPhase nutrientApplicationPhase;
 
     public boolean isTarget(ItemStack itemStack) {
         return this.itemStack.isItemEqual(itemStack);

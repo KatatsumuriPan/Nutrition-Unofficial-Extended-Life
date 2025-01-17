@@ -181,6 +181,7 @@ public class DataParser {
             foodHint.itemStack = itemStack;
             foodHint.isValidFood = foodHintRaw.isValidFood;
             foodHint.healAmount = Math.max((float) foodHintRaw.healAmount, 0);
+            foodHint.nutrientApplicationPhase = foodHintRaw.nutrientApplicationPhase;
             res.add(foodHint);
         }
 

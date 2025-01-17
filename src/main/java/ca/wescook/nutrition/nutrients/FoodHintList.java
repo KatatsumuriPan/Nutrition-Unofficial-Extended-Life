@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
 
 import net.minecraft.item.ItemStack;
 
+import ca.wescook.nutrition.api.NutrientApplicationPhase;
+
 // Maintains information about food hint
 // Stored client and server-side
 public class FoodHintList {
@@ -33,6 +35,14 @@ public class FoodHintList {
     static Float getHealAmount(ItemStack itemStack) {
         FoodHint hint = getHint(itemStack);
         return hint != null ? hint.healAmount : null;
+    }
+
+    // INTERNAL
+    // Returns the healAmount of the ItemStack (or null if there is no hint for it).
+    @Nullable
+    public static NutrientApplicationPhase getNutrientApplicationPhase(ItemStack itemStack) {
+        FoodHint hint = getHint(itemStack);
+        return hint != null ? hint.nutrientApplicationPhase : null;
     }
 
     // Returns the hint of the food (or null if there is no hint for it).
